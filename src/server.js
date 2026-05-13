@@ -13,6 +13,8 @@ const generalRateLimiter = require("../middlewares/generalRateLimiter");
 const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
+const router = require("../routes/routes"); // Page routes
+
 require("dotenv").config(); // DOT ENV Declaration
 const PORT = process.env.PORT || 3000;
 
@@ -23,28 +25,18 @@ const app = express();
 app.use(express.json({ limit: "100kb" }));
 app.use(express.urlencoded({ extended: true, limit: "100kb" }));
 app.use(compression()); // GZip/ Deflate compression
-app.use(helmet());
+app.use(helmet()); // Basic Security
 app.use(cors({ origin: "*", credentials: true })); // CORS Implementation (Allowing all domains temporarily)
 app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
 app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
 app.use(fakeServerHeaders); // Spoof header. Confuses Attacker
-app.set("trust proxy", true);
+app.use("/",router)
+app.set("trust proxy", true); 
 
 // XSS Sanitization Eg
 // const clean = xss(
 //    '<img src=x onerror=alert(1)>'
 // );
-
-// Dummy route
-app.get("/", (req, res) => {
-    res.send(`Handled by worker ${process.pid}`);
-});
-
-app.get("/errorTest", (req, res, next) => {
-    const simulatedError = new Error("Manual Error Testing");
-    simulatedError.statusCode = 400;
-    next(simulatedError);
-})
 
 // 404 Middleware
 
