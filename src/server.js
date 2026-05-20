@@ -16,6 +16,10 @@ const fakeServerHeaders = require("../middlewares/spoofHeaders");
 const router = require("../routes/routes"); // Page routes
 
 require("dotenv").config(); // DOT ENV Declaration
+
+// MySQL Connection
+require("../db/conn");
+
 const PORT = process.env.PORT || 3000;
 
 // Express Instance

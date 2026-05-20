@@ -16,4 +16,28 @@ router.get("/errorTest", (req, res, next) => {
     next(simulatedError);
 })
 
+// Cross Platform Routes
+
+router.post("/api/register", async function(req,res){
+
+    // Fetching User Information
+
+    const {
+        firstName,
+        lastName,
+        email,
+        password,
+        role,
+        gender,
+        date_of_birth,
+
+    } = req.body;
+
+    
+
+})
+
+router.post("/api/login", async function(req,res){
+
+})
 module.exports = router;
