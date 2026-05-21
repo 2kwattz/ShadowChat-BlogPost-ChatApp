@@ -31,7 +31,6 @@ async function sendEmail(toEmail, subject, html) {
 
         throw error;
     }
-
 }
 
 module.exports = sendEmail;
