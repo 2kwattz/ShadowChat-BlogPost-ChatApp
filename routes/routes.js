@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const xss = require("xss"); // To prevent XSS Attacks 
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
+const jwt = require("jsonwebtoken"); // JWT Authentication
 
 // Templates
 const welcomeTemplate = require("../templates/welcome")
@@ -9,7 +10,7 @@ const welcomeTemplate = require("../templates/welcome")
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser");
 
-const pool = require("../db/conn")
+const { pool } = require("../db/conn")
 
 
 // XSS Cleaned Value Helper Function
@@ -276,11 +277,15 @@ router.post("/api/register", async function (req, res) {
             return res.status(400).json(validation);
         }
 
+        console.log("[*] Checking existing users...");
+
         // Verifying Username & Email Address
         const [existingUsers] = await pool.execute(`
-            SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
+            SELECT userId FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
 
         if (existingUsers.length > 0) {
+
+            console.log(`[*] User Already Exists`)
             return res.status(409).json({
                 success: false,
                 message: "User already exists"
@@ -290,10 +295,49 @@ router.post("/api/register", async function (req, res) {
         // Enforcing user's role as "User" since frontend cannot be trusted
         const role = "user";
 
+        // Hashing password using bcrypt
+
+        const hashedPassword = await bcrypt.hash(cleanedBodyData.password, 10);
+
+        // Registering User 
+        const [result] = await pool.execute(`
+            INSERT INTO users (
+            firstName,
+            lastName,
+            username,
+            email,
+            password,
+            gender,
+            date_of_birth,
+            role)
+            VALUES (?,?,?,?,?,?,?,?)`,[
+            cleanedBodyData.firstName,
+            cleanedBodyData.lastName,
+            cleanedBodyData.username,
+            cleanedBodyData.email,
+            hashedPassword,
+            cleanedBodyData.gender,
+            cleanedBodyData.date_of_birth,
+            role
+        ]);
+
+        // Generating JWT Token
+
+        const token = jwt.sign(
+            {
+                id: result.insertId,
+                role: role,
+            },
+            process.env.JWT_SECRET_KEY,
+            {
+                expiresIn: "7d"
+            }
+        );
 
         res.status(201).json({
             status: true,
-            message: "Registration Successful"
+            message: "Registration Successful",
+            token: token
         });
 
         await sendEmail(

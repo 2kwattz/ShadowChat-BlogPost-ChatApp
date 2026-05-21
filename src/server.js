@@ -60,9 +60,8 @@ app.use((req, res, next) => {
 });
 
 // Error Middleware
+
 app.use(errorMiddleware)
-
-
 
 app.listen(PORT, () => {
     console.log(`[*] Node Server PID ${process.pid} started on port ${PORT}`);
