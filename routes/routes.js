@@ -310,7 +310,7 @@ router.post("/api/register", async function (req, res) {
             gender,
             date_of_birth,
             role)
-            VALUES (?,?,?,?,?,?,?,?)`,[
+            VALUES (?,?,?,?,?,?,?,?)`, [
             cleanedBodyData.firstName,
             cleanedBodyData.lastName,
             cleanedBodyData.username,
@@ -333,6 +333,14 @@ router.post("/api/register", async function (req, res) {
                 expiresIn: "7d"
             }
         );
+
+        // Upon Token Generation failure
+        if (!token) {
+            return res.status(500).json({
+                status: false,
+                message: "Token generation failed"
+            });
+        }
 
         res.status(201).json({
             status: true,
