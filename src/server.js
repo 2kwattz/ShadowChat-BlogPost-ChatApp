@@ -44,6 +44,13 @@ app.set("trust proxy", false);
 //    '<img src=x onerror=alert(1)>'
 // );
 
+// To allow a specific param through HPP 
+// app.use(
+//   hpp({
+//     whitelist: ["category"]
+//   })
+// );
+
 // 404 Middleware
 
 app.use((req, res, next) => {
