@@ -1,25 +1,29 @@
-import { Resend } from 'resend';
+const { Resend } = require("resend");
+
+// DOTENV Configuration
+const dotenv = require("dotenv");
+dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-async function sendEmail(toEmail,subject,html) {
+async function sendEmail(toEmail, subject, html) {
 
     try {
 
+        if (typeof html !== "string" || html.trim() === "") {
+            throw new Error("sendEmail requires an HTML string. Did you forget to call your template function?");
+        }
+
         const response = await resend.emails.send({
 
-            from: "onboarding@resend.dev",
-            to: "roshan.bhatia.blueera@gmail.com",
-            subject: "Hello World",
-            html: `
-                <p>
-                    Congrats on sending your
-                    <strong>first email</strong>!
-                </p>
-            `
+            from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+            to: toEmail,
+            subject,
+            html
         });
 
-        console.log(response);
+        console.log(`[*] sendEmail Triggered. ${response}`);
+        return response;
 
     } catch (error) {
 
@@ -30,4 +34,4 @@ async function sendEmail(toEmail,subject,html) {
 
 }
 
-export default sendEmail;
+module.exports = sendEmail;

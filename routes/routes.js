@@ -3,6 +3,9 @@ const router = express.Router();
 const xss = require("xss"); // To prevent XSS Attacks 
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
 
+// Templates
+const welcomeTemplate = require("../templates/welcome")
+
 const sendEmail = require("../services/sendEmail")
 
 // XSS Cleaned Value Helper Function
@@ -240,6 +243,12 @@ router.post("/api/register", async function (req, res) {
 
     // Enforcing user's role as "User" since frontend cannot be trusted
     const role = "user";
+
+    await sendEmail(
+        cleanedBodyData.email,
+        "Welcome to ShadowChat",
+        welcomeTemplate(cleanedBodyData.firstName)
+    );
 
     res.json({
         status: true,
