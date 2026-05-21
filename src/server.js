@@ -35,7 +35,7 @@ app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
 app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
 app.use(fakeServerHeaders); // Spoof header. Confuses Attacker
 app.use("/",router)
-app.set("trust proxy", true); 
+app.set("trust proxy", false); 
 
 // XSS Sanitization Eg
 // const clean = xss(
@@ -45,13 +45,9 @@ app.set("trust proxy", true);
 // 404 Middleware
 
 app.use((req, res, next) => {
-
     const error = new Error("Page Not Found");
-
     error.statusCode = 404;
-
     next(error);
-
 });
 
 // Error Middleware

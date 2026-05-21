@@ -21,7 +21,7 @@ try{
 }
 catch(error){
     console.error(`[*] Error In connecting to the database `,error.message || error);
-    process.exit(1)
+    // process.exit(1)
 }
 }
 
