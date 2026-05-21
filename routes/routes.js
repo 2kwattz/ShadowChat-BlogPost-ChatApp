@@ -9,6 +9,8 @@ const welcomeTemplate = require("../templates/welcome")
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser");
 
+const pool = require("../db/conn")
+
 
 // XSS Cleaned Value Helper Function
 const cleanXSS = (obj) => {
@@ -31,7 +33,8 @@ const cleanXSS = (obj) => {
 
             cleaned[key] = obj[key];
 
-        }}
+        }
+    }
     return cleaned;
 };
 
@@ -47,10 +50,12 @@ const blockedDomains = [
 ];
 
 const allowedGenders = ["male", "female", "other"];
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Validation Function
 
 const validateData = (data) => {
+
 
     // Validating First Name
     if (!data.firstName || data.firstName.trim() === "") {
@@ -68,6 +73,21 @@ const validateData = (data) => {
         }
     };
 
+    // Validating Username
+    if (!data.username || data.username.trim() === "") {
+        return {
+            status: false,
+            error: "Username is required"
+        }
+    }
+
+    if (emailRegex.test(data.username)) {
+        return {
+            status: false,
+            error: "Username cannot be an email address"
+        };
+    }
+
     // Validating Email Address
     if (!data.email || data.email.trim() === "") {
 
@@ -78,7 +98,7 @@ const validateData = (data) => {
     };
 
     // Validating Email Format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     const email = data.email.trim().toLowerCase();
 
     if (!emailRegex.test(email)) {
@@ -103,17 +123,19 @@ const validateData = (data) => {
     if (!data.password) {
         return {
             status: false,
-            error: "Password cannot be empty"
+            error: "Password is required"
         }
     }
 
+    // Validating confirm password
     if (!data.confirmPassword) {
-    return {
-        status: false,
-        error: "Confirm Password cannot be empty"
+        return {
+            status: false,
+            error: "Confirm Password is required"
+        }
     }
-}
 
+    // Validating Password's length
     if (data.password.length < 6) {
         return {
             status: false,
@@ -121,6 +143,7 @@ const validateData = (data) => {
         }
     }
 
+    // Verifying Password and Confirm Password
     if (data.password !== data.confirmPassword) {
         return {
             status: false,
@@ -131,23 +154,25 @@ const validateData = (data) => {
     const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
+    // Validating Strong Password
     if (!passwordRegex.test(data.password)) {
         return {
             status: false,
             error:
                 "Password must contain uppercase, lowercase and number"
-        }};
+        }
+    };
 
     // Validating Date Of Birth
     if (!data.date_of_birth) {
         return {
             status: false,
-            error: "Date Of Birth cannot be empty"
+            error: "Date Of Birth is required"
         }
     }
 
     // Creating Date Object
-   const dob = new Date(`${data.date_of_birth}T00:00:00`);
+    const dob = new Date(`${data.date_of_birth}T00:00:00`);
 
     // Checking Invalid Date
     if (isNaN(dob.getTime())) {
@@ -215,9 +240,8 @@ const validateData = (data) => {
 
 router.get("/", async (req, res) => {
 
-    const userAgent = req.headers["user-agent"];
-
-    const deviceInfo = JSON.stringify(deviceParser(userAgent),null,2)
+    const userAgent = req.headers["user-agent"]; // User Device & Browser Details
+    const deviceInfo = JSON.stringify(deviceParser(userAgent), null, 2)
 
     console.log(`[*] Test User Device Info ${deviceInfo}`)
     res.json({
@@ -236,41 +260,55 @@ router.get("/errorTest", (req, res, next) => {
 
 router.post("/api/register", async function (req, res) {
 
-    try{
+    try {
 
-    // Fetching User Information & Validation
+        // Fetching User Information & Validation
 
-    const cleanedBodyData = cleanXSS(req.body);
+        const cleanedBodyData = cleanXSS(req.body);
 
-    const validation = validateData(cleanedBodyData);
+        // Request Body Validations
 
-    // Validation Failed
-    if (!validation.status) {
-        return res.status(400).json(validation);
+        cleanedBodyData.email = cleanedBodyData.email?.trim().toLowerCase();
+        const validation = validateData(cleanedBodyData);
+
+        // Validation Failed
+        if (!validation.status) {
+            return res.status(400).json(validation);
+        }
+
+        // Verifying Username & Email Address
+        const [existingUsers] = await pool.execute(`
+            SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
+
+        if (existingUsers.length > 0) {
+            return res.status(409).json({
+                success: false,
+                message: "User already exists"
+            });
+        }
+
+        // Enforcing user's role as "User" since frontend cannot be trusted
+        const role = "user";
+
+
+        res.status(201).json({
+            status: true,
+            message: "Registration Successful"
+        });
+
+        await sendEmail(
+            cleanedBodyData.email,
+            "Welcome to ShadowChat",
+            welcomeTemplate(cleanedBodyData.firstName)
+        );
+
     }
 
-    // Enforcing user's role as "User" since frontend cannot be trusted
-    const role = "user";
-
-    
-    res.json({
-        status: true,
-        message: "Registration Successful"
-    });
-    
-    await sendEmail(
-        cleanedBodyData.email,
-        "Welcome to ShadowChat",
-        welcomeTemplate(cleanedBodyData.firstName)
-    );
-
-    }
-
-    catch(error){
+    catch (error) {
         console.error(`[*] Error in registering user ${error.message || error}`);
-        
+
         // Manual Response
-         return res.status(500).json({
+        return res.status(500).json({
             status: false,
             error: "Internal Server Error"
         });
@@ -280,6 +318,40 @@ router.post("/api/register", async function (req, res) {
 })
 
 router.post("/api/login", async function (req, res) {
+    try {
+
+        const cleanedBodyData = cleanXSS(req.body); // Sanitizes values against XSS attacks for eg < will become &lt
+        const {identifier, password} = cleanedBodyData; // Fetching username/email & password
+
+        // Validating identifier for username/email
+
+        const isEmail = emailRegex.test(identifier);
+
+        // JSON Response only for testing purpose
+        // if (isEmail) {
+        //     return res.json({
+        //         status: true,
+        //         message: "Identifier is an email address"
+        //     })
+        // }
+        // else {
+        //     return res.json({
+        //         status: true,
+        //         message: "Identifier is a username"
+        //     })
+        // }
+
+        if(!identifier || !password){
+            return res.status(400).json({
+                status: false,
+                message: "Enter username/email and password"
+            })
+        }
+
+    }
+    catch (error) {
+        console.log(`[*] Error in handling POST /api/login route ${error.message || error}`)
+    }
 
 })
 module.exports = router;
