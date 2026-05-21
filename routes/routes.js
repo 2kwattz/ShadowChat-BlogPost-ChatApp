@@ -3,6 +3,8 @@ const router = express.Router();
 const xss = require("xss"); // To prevent XSS Attacks 
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
 
+const sendEmail = require("../services/sendEmail")
+
 // XSS Cleaned Value Helper Function
 const cleanXSS = (obj) => {
 
