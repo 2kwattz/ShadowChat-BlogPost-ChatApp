@@ -6,6 +6,7 @@ const compression = require("compression") // Gzip/Deflate Middleware
 const cors = require('cors');
 const helmet = require("helmet"); // Basic Security 
 const xss = require("xss"); // Cross Site Scripting Prevention
+const hpp = require("hpp"); // HTTP Parameter Pollution Protection
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware");
@@ -33,7 +34,8 @@ app.use(helmet()); // Basic Security
 app.use(cors({ origin: "*", credentials: true })); // CORS Implementation (Allowing all domains temporarily)
 app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
 app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
-app.use(fakeServerHeaders); // Spoof header. Confuses Attacker
+app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
+app.use(hpp()); // Prevents HTTP Parameter Pollution
 app.use("/",router)
 app.set("trust proxy", false); 
 
