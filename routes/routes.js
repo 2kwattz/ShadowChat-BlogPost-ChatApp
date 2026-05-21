@@ -399,6 +399,25 @@ router.post("/api/login", async function (req, res) {
         //     })
         // }
 
+        // Verifying User from Database
+
+        const [users] = await pool.execute(
+            `
+            SELECT * FROM users
+            WHERE email = ? OR username = ?
+            LIMIT 1
+            `,
+            [identifier, identifier]
+        );
+    
+        if(users.length === 0){
+            return res.status(401).json({
+                status: false,
+                message: "Email Address/Username or Password is incorrect"
+
+            })
+        }
+
 
     }
     catch (error) {
