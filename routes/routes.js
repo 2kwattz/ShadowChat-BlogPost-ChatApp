@@ -6,7 +6,9 @@ const bcrypt = require("bcrypt"); // Bcrypt Hashing
 // Templates
 const welcomeTemplate = require("../templates/welcome")
 
-const sendEmail = require("../services/sendEmail")
+const sendEmail = require("../services/sendEmail"); // Email Service
+const deviceParser = require("../utils/deviceParser");
+
 
 // XSS Cleaned Value Helper Function
 const cleanXSS = (obj) => {
@@ -212,6 +214,12 @@ const validateData = (data) => {
 // Routes
 
 router.get("/", async (req, res) => {
+
+    const userAgent = req.headers["user-agent"];
+
+    const deviceInfo = JSON.stringify(deviceParser(userAgent),null,2)
+
+    console.log(`[*] Test User Device Info ${deviceInfo}`)
     res.json({
         status: true,
         message: "Home Route Working"
@@ -244,17 +252,17 @@ router.post("/api/register", async function (req, res) {
     // Enforcing user's role as "User" since frontend cannot be trusted
     const role = "user";
 
+    
+    res.json({
+        status: true,
+        message: "Registration Successful"
+    });
+    
     await sendEmail(
         cleanedBodyData.email,
         "Welcome to ShadowChat",
         welcomeTemplate(cleanedBodyData.firstName)
     );
-
-    res.json({
-        status: true,
-        message: "Registration Successful"
-    });
-
 
     }
 
