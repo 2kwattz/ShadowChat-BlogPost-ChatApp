@@ -321,8 +321,14 @@ router.post("/api/login", async function (req, res) {
     try {
 
         const cleanedBodyData = cleanXSS(req.body); // Sanitizes values against XSS attacks for eg < will become &lt
-        const {identifier, password} = cleanedBodyData; // Fetching username/email & password
+        const { identifier, password } = cleanedBodyData; // Fetching username/email & password
 
+        if (!identifier || !password) {
+            return res.status(400).json({
+                status: false,
+                message: "Enter username/email and password"
+            })
+        }
         // Validating identifier for username/email
 
         const isEmail = emailRegex.test(identifier);
@@ -341,16 +347,14 @@ router.post("/api/login", async function (req, res) {
         //     })
         // }
 
-        if(!identifier || !password){
-            return res.status(400).json({
-                status: false,
-                message: "Enter username/email and password"
-            })
-        }
 
     }
     catch (error) {
         console.log(`[*] Error in handling POST /api/login route ${error.message || error}`)
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
     }
 
 })
