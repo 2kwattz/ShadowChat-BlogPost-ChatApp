@@ -15,7 +15,8 @@ const generalRateLimiter = require("../middlewares/generalRateLimiter");
 const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
-const authRouter = require("../routes/authRouter"); // Page routes
+// Main / Route is temporarily in Auth Routes
+const authRouter = require("../routes/authRouter"); // Auth routes
 const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
 
 require("dotenv").config(); // DOT ENV Declaration

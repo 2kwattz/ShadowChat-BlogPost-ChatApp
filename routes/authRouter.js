@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const xss = require("xss"); // To prevent XSS Attacks 
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
 const jwt = require("jsonwebtoken"); // JWT Authentication
 
@@ -9,11 +8,9 @@ const welcomeTemplate = require("../templates/welcome")
 
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser"); // Device User Agent Parsing
-const cleanXSS = require("../utils/xssCleaner")
+const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
 
 const { pool } = require("../db/conn")
-
-
 
 // Disposable / Temp Mail Domains
 const blockedDomains = [
@@ -302,7 +299,6 @@ router.post("/api/register", async function (req, res) {
         const token = jwt.sign(
             {
                 id: result.insertId,
-                role: role,
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -349,7 +345,10 @@ router.post("/api/login", async function (req, res) {
     try {
 
         const cleanedBodyData = cleanXSS(req.body); // Sanitizes values against XSS attacks for eg < will become &lt
-        const { identifier, password } = cleanedBodyData; // Fetching username/email & password
+
+        // Fetching username/email & password
+        const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
+        const password = cleanedBodyData.password;
 
         if (!identifier || !password) {
             return res.status(400).json({
@@ -377,24 +376,86 @@ router.post("/api/login", async function (req, res) {
 
         // Verifying User from Database
 
-        const [users] = await pool.execute(
-            `
-            SELECT * FROM users
-            WHERE email = ? OR username = ?
-            LIMIT 1
-            `,
-            [identifier, identifier]
-        );
-    
-        if(users.length === 0){
+        // Fake Hash to prevent enumeration attack via response timing
+        const fakeHash = "$2b$10$KbQiM6TA6L/2esL8hWT8EOV9V7sXxJ0L0K9lK1w2r0kM7rj8yP6yS";
+        let users;
+
+        // const [users] = await pool.execute(
+        //     `
+        //     SELECT userId, email, password, username FROM users
+        //     WHERE email = ? OR username = ?
+        //     LIMIT 1
+        //     `,
+        //     [identifier, identifier]
+        // );
+
+
+        if (isEmail) {
+
+            [users] = await pool.execute(`
+        SELECT userId, email, password, username
+        FROM users
+        WHERE email = ?
+        LIMIT 1
+        `, [identifier]);
+
+        } else {
+
+            [users] = await pool.execute(
+                `
+        SELECT userId, email, password, username
+        FROM users
+        WHERE username = ?
+        LIMIT 1
+        `,
+                [identifier]
+            );
+        }
+
+        // Validation if user does not exist
+        if (users.length === 0) {
+
+            // Fake hash to prevent timing based enumeration attack
+            await bcrypt.compare(password, fakeHash);
+
             return res.status(401).json({
                 status: false,
-                message: "Email Address/Username or Password is incorrect"
+                message: "Invalid Credentials"
 
             })
         }
 
+        const user = users[0];
 
+        const isPasswordCorrect = await bcrypt.compare(
+            password,
+            user.password
+        )
+
+        // Validation if password is incorrect
+        if (!isPasswordCorrect) {
+            return res.status(401).json({
+                status: false,
+                message: "Invalid Credentials"
+            })
+        }
+
+        // Generating JWT Token
+        const token = jwt.sign({
+            id: user.userId
+        },
+            process.env.JWT_SECRET_KEY, {
+            expiresIn: "7d"
+        }
+        );
+
+        console.log(`[*] User ${user.username} logged in successfully`);
+
+        return res.status(200).json({
+            status: true,
+            message: "Login Successful",
+            token: token
+        })
     }
     catch (error) {
         console.log(`[*] Error in handling POST /api/login route ${error.message || error}`)
