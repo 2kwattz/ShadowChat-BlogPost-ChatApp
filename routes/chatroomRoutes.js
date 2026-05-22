@@ -6,6 +6,8 @@ const crypto = require("crypto"); // For security & cryptographic operations
 
 // Cross Platform Chatroom Routes
 
+// Create Chatroom
+
 router.post("/create", async function (req, res) {
     try {
         const cleanedBodyData = cleanXSS(req.body);
@@ -35,8 +37,8 @@ router.post("/create", async function (req, res) {
                 message: "Chatroom Description is required"
             });
         }
-        if(chatroomDescription.length < 6 ){
-             return res.status(400).json({
+        if (chatroomDescription.length < 6) {
+            return res.status(400).json({
                 status: false,
                 message: "Chatroom Description should be atleast 6 characters"
             });
@@ -45,9 +47,32 @@ router.post("/create", async function (req, res) {
         // Generating random UUID corresponding to each chatroom
         const roomUUID = crypto.randomUUID();
 
+        // After storing in database
+        return res.status(201).json({
+            status: true,
+            message: "Chatroom Created Successfully",
+            roomUUID
+        });
+
     }
     catch (error) {
-        console.error(`[*] Error in creating chatroom ${error.message || error}`)
+        console.error(`[*] Error in creating chatroom ${error.message || error}`);
+        return res.status(500).json({
+                status: false,
+                message: "Internal Server Error"
+            });
+    }
+})
+
+// Fetch All Chatrooms
+
+router.get("/all", async function (req, res) {
+    try {
+        console.log("[*] Fetching all chatrooms")
+
+    }
+    catch (error) {
+        console.log(`[*] Error in Fetching all chatrooms ${error.message || error}`)
     }
 })
 
