@@ -15,7 +15,7 @@ const generalRateLimiter = require("../middlewares/generalRateLimiter");
 const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
-const router = require("../routes/routes"); // Page routes
+const authRouter = require("../routes/authRouter"); // Page routes
 
 require("dotenv").config(); // DOT ENV Declaration
 
@@ -37,7 +37,10 @@ app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
 app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
 app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
 app.use(hpp()); // Prevents HTTP Parameter Pollution
-app.use("/",router)
+
+// Router Middlewares
+
+app.use("/auth",authRouter)
 app.set("trust proxy", false); 
 
 // XSS Sanitization Eg
@@ -66,11 +69,9 @@ io.on("connection", function(socket){
     console.log(`[*] Web Socket Client connected with Socket Id ${socket.id}`);
 
     // Yet to add listeners
-
 })
 
 // 404 Middleware
-
 app.use((req, res, next) => {
     const error = new Error("Page Not Found");
     error.statusCode = 404;
@@ -78,7 +79,6 @@ app.use((req, res, next) => {
 });
 
 // Error Middleware
-
 app.use(errorMiddleware)
 
 // app.listen(PORT, () => {
