@@ -28,7 +28,6 @@ async function sendEmail(toEmail, subject, html) {
     } catch (error) {
 
         console.error(`[*] Error while sending email ${error.message || error}`);
-
         throw error;
     }
 }

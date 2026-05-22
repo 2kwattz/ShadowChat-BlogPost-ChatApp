@@ -16,6 +16,7 @@ const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
 const authRouter = require("../routes/authRouter"); // Page routes
+const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
 
 require("dotenv").config(); // DOT ENV Declaration
 
@@ -40,7 +41,8 @@ app.use(hpp()); // Prevents HTTP Parameter Pollution
 
 // Router Middlewares
 
-app.use("/auth",authRouter)
+app.use("/auth",authRouter); // Authentication routes
+app.use("/room",chatroomRouter); // Chatroom routes
 app.set("trust proxy", false); 
 
 // XSS Sanitization Eg

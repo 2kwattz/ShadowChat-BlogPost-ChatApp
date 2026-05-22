@@ -72,10 +72,30 @@ router.get("/all", async function (req, res) {
 
     }
     catch (error) {
-        console.log(`[*] Error in Fetching all chatrooms ${error.message || error}`)
+        console.log(`[*] Error in Fetching all chatrooms ${error.message || error}`);
+         return res.status(500).json({
+         status:false,
+         message:"Internal Server Error"
+      });
     }
 })
 
+// Fetch Individual Chatroom
 
+router.get("/:roomUUID", async function(req,res) {
+
+    try{
+        const roomUUID = req.params.roomUUID;
+    }
+    catch(error){
+        
+        console.log(`[*] Error in loading room ${error.message || error}`);
+        return res.status(500).json({
+         status:false,
+         message:"Internal Server Error"
+      });
+    }
+    
+})
 
 module.exports = router;
