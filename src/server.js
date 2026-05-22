@@ -1,5 +1,4 @@
 const express = require("express"); // Node Framework
-const bodyParser = require("body-parser"); // Req.Body Parser
 const cluster = require("cluster"); // Horizontal Scaling
 const os = require("os"); // CPU/Os Info
 const compression = require("compression") // Gzip/Deflate Middleware
@@ -7,6 +6,8 @@ const cors = require('cors');
 const helmet = require("helmet"); // Basic Security 
 const xss = require("xss"); // Cross Site Scripting Prevention
 const hpp = require("hpp"); // HTTP Parameter Pollution Protection
+const http = require("http"); // Inbuilt Http Server
+const { Server } = require("socket.io"); // Socket.io Web Socket Server
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware");
@@ -23,8 +24,8 @@ require("../db/conn");
 
 const PORT = process.env.PORT || 3000;
 
-// Express Instance
-const app = express();
+const app = express(); // Express Instance
+const server = http.createServer(app); // Web Socket Server Instance
 
 // Middlewares
 app.use(express.json({ limit: "100kb" }));
@@ -51,6 +52,23 @@ app.set("trust proxy", false);
 //   })
 // );
 
+// Web Socket Connection
+
+const io = new Server(server, {
+    cors: {
+        origin: "*"
+    }
+});
+
+
+io.on("connection", function(socket){
+
+    console.log(`[*] Web Socket Client connected with Socket Id ${socket.id}`);
+
+    // Yet to add listeners
+
+})
+
 // 404 Middleware
 
 app.use((req, res, next) => {
@@ -63,6 +81,10 @@ app.use((req, res, next) => {
 
 app.use(errorMiddleware)
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//     console.log(`[*] Node Server PID ${process.pid} started on port ${PORT}`);
+// });
+
+server.listen(PORT, () => {
     console.log(`[*] Node Server PID ${process.pid} started on port ${PORT}`);
 });
