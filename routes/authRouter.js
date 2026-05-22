@@ -8,36 +8,12 @@ const jwt = require("jsonwebtoken"); // JWT Authentication
 const welcomeTemplate = require("../templates/welcome")
 
 const sendEmail = require("../services/sendEmail"); // Email Service
-const deviceParser = require("../utils/deviceParser");
+const deviceParser = require("../utils/deviceParser"); // Device User Agent Parsing
+const cleanXSS = require("../utils/xssCleaner")
 
 const { pool } = require("../db/conn")
 
 
-// XSS Cleaned Value Helper Function
-const cleanXSS = (obj) => {
-
-    const cleaned = {};
-
-    const excludedFields = [
-        "password",
-        "confirmPassword"
-    ];
-
-    for (let key in obj) {
-        if (
-            typeof obj[key] === "string" &&
-            !excludedFields.includes(key)
-        ) {
-
-            cleaned[key] = xss(obj[key].trim());
-        } else {
-
-            cleaned[key] = obj[key];
-
-        }
-    }
-    return cleaned;
-};
 
 // Disposable / Temp Mail Domains
 const blockedDomains = [
