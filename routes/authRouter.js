@@ -55,13 +55,6 @@ const validateData = (data) => {
         }
     }
 
-     if (!data.identifier || data.identifier.trim() === "") {
-        return {
-            status: false,
-            error: "Username or Email is required"
-        }
-    }
-
     if (emailRegex.test(data.username)) {
         return {
             status: false,
@@ -333,29 +326,66 @@ router.post("/login", async function (req, res) {
         console.log("[*] GET POST /Login Route ")
         const cleanedBodyData = cleanXSS(req.body); // Sanitizes values against XSS attacks for eg < will become &lt
 
-        
+
         // Fetching username/email & password
+
+        console.log("Clean Body Data ",cleanedBodyData)
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
         const password = cleanedBodyData.password;
-        
-        console.log(`[*] Identifier `,identifier);
-        console.log(`[*] Password `,password);
-        
+
+        console.log(`[*] Identifier `, identifier);
+        console.log(`[*] Password `, password);
+
         if (!identifier || !password) {
             return res.status(400).json({
                 status: false,
                 message: "Enter username/email and password"
             })
         }
-        const validation = validateData(cleanedBodyData);
+        else{
+            console.log("[*] Both Identifiers Present")
+        }
+        const isEmail = emailRegex.test(identifier);
 
-       // Validation Failed
-       if (!validation.status) {
-           return res.status(400).json(validation);
-       }
+        if (isEmail) {
+            if (!identifier || identifier.trim() === "") {
+
+                return {
+                    status: false,
+                    error: "Email or Username is required"
+                }
+            };
+
+            // Validating Email Format
+
+            const email = identifier.trim().toLowerCase();
+
+
+            const emailDomain = email.split("@")[1];
+
+            // Validating Domain Authenticity
+            if (blockedDomains.includes(emailDomain)) {
+                return {
+                    status: false,
+                    error: "Temporary Email Addresses are not allowed"
+                }
+            }
+
+        }
+
+        else {
+            if (!identifier || identifier.trim() === "") {
+
+                return {
+                    status: false,
+                    error: "Email is required"
+                }
+            };
+        }
+
+
         // Validating identifier for username/email
 
-        const isEmail = emailRegex.test(identifier);
 
         // JSON Response only for testing purpose
         // if (isEmail) {
