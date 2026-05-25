@@ -1,6 +1,6 @@
 import axios from "axios"; // HTTP Request Maker
 
-const BASE_URL = "http://localhost:3000/api";
+const BASE_URL = "http://192.168.0.195:3000";
 // const BASE_URL = "http://localhost:3000/";
 
 // User Login
@@ -8,7 +8,7 @@ const BASE_URL = "http://localhost:3000/api";
 export const userLogin = async(data) => {
     try{
         const response = await axios.post(
-            `${BASE_URL}/login`,
+            `${BASE_URL}/auth/login`,
             data
         );
 
@@ -25,7 +25,7 @@ export const userLogin = async(data) => {
 export const userRegistration = async(data) => {
     try{
         const response = await axios.post(
-            `${BASE_URL}/register`,
+            `${BASE_URL}/auth/register`,
             data
         );
 

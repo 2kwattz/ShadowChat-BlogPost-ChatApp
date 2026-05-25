@@ -15,6 +15,9 @@ const generalRateLimiter = require("../middlewares/generalRateLimiter");
 const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
+// Utilities
+const deviceParser = require("../utils/deviceParser")
+
 // Main / Route is temporarily in Auth Routes
 const authRouter = require("../routes/authRouter"); // Auth routes
 const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
@@ -39,6 +42,26 @@ app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
 app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
 app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
 app.use(hpp()); // Prevents HTTP Parameter Pollution
+
+// Home & Test Routes
+
+app.get("/", async (req, res) => {
+
+    const userAgent = req.headers["user-agent"]; // User Device & Browser Details
+    const deviceInfo = JSON.stringify(deviceParser(userAgent), null, 2)
+
+    console.log(`[*] Test User Device Info ${deviceInfo}`)
+    res.json({
+        status: true,
+        message: "Home Route Working"
+    })
+})
+
+app.get("/errorTest", (req, res, next) => {
+    const simulatedError = new Error("Manual Error Testing");
+    simulatedError.statusCode = 500;
+    next(simulatedError);
+})
 
 // Router Middlewares
 

@@ -1,10 +1,11 @@
 import { useState } from "react";
 import "./login.css";
+import { userLogin } from "../../services/api";
 
 function Login() {
 
   // States
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
 
@@ -15,11 +16,14 @@ function Login() {
     e.preventDefault();
 
     console.log({
-      email,
+      identifier,
       password
     });
 
     // API Call Here
+
+    const response = userLogin({identifier,password})
+    console.log("Login Response ",response)
   };
 
 
@@ -36,11 +40,11 @@ function Login() {
         <h1>Login</h1>
 
         <input
-          type="email"
+          type="text"
           placeholder="Enter Email"
-          value={email}
+          value={identifier}
           onChange={(e) =>
-            setEmail(e.target.value)
+            setIdentifier(e.target.value)
           }
         />
 
