@@ -6,9 +6,12 @@ const jwt = require("jsonwebtoken"); // JWT Authentication
 // Templates
 const welcomeTemplate = require("../templates/welcome")
 
+
+// Utility Functions
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser"); // Device User Agent Parsing
 const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
+const {formatName} = require("../utils/commonHelpers"); // Common Helper Functions
 
 const { pool } = require("../db/conn")
 
@@ -25,6 +28,7 @@ const blockedDomains = [
 
 const allowedGenders = ["male", "female", "other"];
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
 // Validation Function
 
@@ -60,6 +64,19 @@ const validateData = (data) => {
             status: false,
             error: "Username cannot be an email address"
         };
+    }
+
+    if (data.username.length < 3 || data.username.length > 16) {
+        return {
+            status: false,
+            error: "Username must be between 3 and 16 characters"
+        };
+    }
+    if (!usernameRegex.test(data.username)) {
+        return {
+            status: false,
+            error: "Username can only contain characters, numbers and underscores"
+        }
     }
 
     // Validating Email Address
@@ -223,6 +240,10 @@ router.post("/register", async function (req, res) {
         // Request Body Validations
 
         cleanedBodyData.email = cleanedBodyData.email?.trim().toLowerCase();
+        cleanedBodyData.username = cleanedBodyData.username?.trim().toLowerCase();
+        cleanedBodyData.firstName = formatName(cleanedBodyData.firstName);
+        cleanedBodyData.lastName = formatName(cleanedBodyData.lastName);
+
         const validation = validateData(cleanedBodyData);
 
         // Validation Failed
@@ -329,58 +350,56 @@ router.post("/login", async function (req, res) {
 
         // Fetching username/email & password
 
-        console.log("Clean Body Data ",cleanedBodyData)
+        console.log("Clean Body Data ", cleanedBodyData)
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
         const password = cleanedBodyData.password;
 
         console.log(`[*] Identifier `, identifier);
         console.log(`[*] Password `, password);
 
-        if (!identifier || !password) {
+
+        if (!identifier) {
+
             return res.status(400).json({
                 status: false,
-                message: "Enter username/email and password"
+                error: "Email or Username is required"
             })
-        }
-        else{
-            console.log("[*] Both Identifiers Present")
-        }
+        };
+
         const isEmail = emailRegex.test(identifier);
 
         if (isEmail) {
-            if (!identifier || identifier.trim() === "") {
-
-                return {
-                    status: false,
-                    error: "Email or Username is required"
-                }
-            };
 
             // Validating Email Format
 
-            const email = identifier.trim().toLowerCase();
-
-
+            const email = identifier;
             const emailDomain = email.split("@")[1];
 
             // Validating Domain Authenticity
             if (blockedDomains.includes(emailDomain)) {
-                return {
+                return res.status(400).json({
                     status: false,
                     error: "Temporary Email Addresses are not allowed"
-                }
+                })
             }
 
         }
 
         else {
-            if (!identifier || identifier.trim() === "") {
-
-                return {
+            // User entered username
+            if (identifier.length < 3 || identifier.length > 16) {
+                return res.status(400).json({
                     status: false,
-                    error: "Email is required"
-                }
-            };
+                    error: "Username must be between 3 and 16 characters"
+                });
+            }
+            else if (!usernameRegex.test(identifier)) {
+                return res.status(400).json({
+                    status: false,
+                    error: "Username can only contain characters, numbers and underscores"
+                })
+            }
+
         }
 
 
