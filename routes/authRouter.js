@@ -360,9 +360,11 @@ router.post("/login", async function (req, res) {
 
         if (!identifier) {
 
+            console.log("[*] Identifier missing")
+
             return res.status(400).json({
                 status: false,
-                error: "Email or Username is required"
+                message: "Email or Username is required"
             })
         };
 

@@ -11,7 +11,7 @@ function Login() {
 
 
   // Login Function
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
 
     e.preventDefault();
 
@@ -22,8 +22,15 @@ function Login() {
 
     // API Call Here
 
-    const response = userLogin({identifier,password})
-    console.log("Login Response ",response)
+    try{
+      const response = await userLogin({identifier,password})
+      console.log("Login Response ",response)
+
+    }
+    catch(error){
+      console.log("Error in Login Response ",error.response.data)
+    }
+
   };
 
 
