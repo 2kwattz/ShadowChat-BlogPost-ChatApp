@@ -3,28 +3,31 @@ const jwt = require("jsonwebtoken");
 const authMiddleware = async (req, res, next) => {
     try {
         console.log("[*] Authenticating User ")
-        const authHeader = req.headers.authorization; // Fetching JWT Bearer Token
+        // const authHeader = req.headers.authorization; // Fetching JWT Bearer Token
 
         // If Authorization Header is missing
-        if (!authHeader) {
+        // if (!authHeader) {
 
-            console.error("[*] Auth Header Missing")
-            return res.status(401).json({
-                status: false,
-                message:"Authorization header missing"
-            });
-        }
+        //     console.error("[*] Auth Header Missing")
+        //     return res.status(401).json({
+        //         status: false,
+        //         message:"Authorization header missing"
+        //     });
+        // }
 
         // If Authorization Header has invalid format
-        if (!authHeader.startsWith("Bearer ")) {
+        // if (!authHeader.startsWith("Bearer ")) {
 
-            return res.status(401).json({
-                status: false,
-                message:"Invalid Authorization Format"
-            })};
+        //     return res.status(401).json({
+        //         status: false,
+        //         message:"Invalid Authorization Format"
+        //     })};
 
         // Fetching JWT Token
-        const token = authHeader.split(" ")[1];
+        // const token = authHeader.split(" ")[1];
+
+          // Fetch token from cookies
+        const token = req.cookies.token;
 
         // If JWT Token is missing
         if (!token) {
@@ -43,6 +46,8 @@ const authMiddleware = async (req, res, next) => {
 
         // Appending user details in Request object
         req.user = decoded;
+
+        console.log("[*] User Authenticated")
         next();
 
 

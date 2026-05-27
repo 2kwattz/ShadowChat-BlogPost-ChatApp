@@ -6,6 +6,7 @@ import Home from "./pages/Home/Home";
 import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Chatroom from "./pages/Chatrooms/Chatroom";
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
 
         <Route path="/dashboard" element={<Dashboard />} />
+
+        <Route path="/room/all" element={<Chatroom />} />
 
       </Routes>
     </BrowserRouter>

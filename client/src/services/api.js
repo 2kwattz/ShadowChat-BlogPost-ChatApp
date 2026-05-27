@@ -38,3 +38,22 @@ export const userRegistration = async(data) => {
     }
 }
 
+// All Chatrooms
+
+export const listChatrooms = async(data) => {
+    try{
+        const response = await axios.get(
+            `${BASE_URL}/room/all`);
+
+            console.log("GET ROOMS FRONTEND")
+
+        return response.data
+    }
+    catch(error){
+        console.error(`Error in calling User Registration API ${error}`)
+        throw error;
+    }
+}
+
+
+

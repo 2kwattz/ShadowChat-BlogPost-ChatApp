@@ -11,7 +11,7 @@ const welcomeTemplate = require("../templates/welcome")
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser"); // Device User Agent Parsing
 const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
-const {formatName} = require("../utils/commonHelpers"); // Common Helper Functions
+const { formatName } = require("../utils/commonHelpers"); // Common Helper Functions
 
 const { pool } = require("../db/conn")
 
@@ -315,6 +315,14 @@ router.post("/register", async function (req, res) {
             });
         }
 
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+
         res.status(201).json({
             status: true,
             message: "Registration Successful",
@@ -480,6 +488,15 @@ router.post("/login", async function (req, res) {
         );
 
         console.log(`[*] User ${user.username} logged in successfully`);
+
+        // Setting JWT token in cookie
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
 
         return res.status(200).json({
             status: true,

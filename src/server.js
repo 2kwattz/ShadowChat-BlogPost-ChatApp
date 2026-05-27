@@ -9,6 +9,8 @@ const hpp = require("hpp"); // HTTP Parameter Pollution Protection
 const http = require("http"); // Inbuilt Http Server
 const { Server } = require("socket.io"); // Socket.io Web Socket Server
 const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Express Bridge
+const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
+
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware");
@@ -39,7 +41,7 @@ const apolloServer = require("../graphql/server/apolloServer") // Apollo Server 
 async function startServer() {
     try {
         await apolloServer.start(); // Initializing Apollo Server
-
+        
         // Middlewares
         app.use(express.json({ limit: "100kb" }));
         app.use(express.urlencoded({ extended: true, limit: "100kb" }));
@@ -50,8 +52,9 @@ async function startServer() {
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
+        app.use(cookieParser()); // Cookie Parser
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
-
+        
         // Home & Test Routes
 
         app.get("/", async (req, res) => {

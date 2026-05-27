@@ -2,6 +2,7 @@ const express = require("express"); // Express Instance
 const router = express.Router();
 const cleanXSS = require("../utils/xssCleaner") // To prevent XSS Attacks 
 const crypto = require("crypto"); // For security & cryptographic operations
+const authMiddleware = require("../middlewares/authMiddleware");
 
 
 // Cross Platform Chatroom Routes
@@ -66,7 +67,7 @@ router.post("/create", async function (req, res) {
 
 // Fetch All Chatrooms
 
-router.get("/all", async function (req, res) {
+router.get("/all",authMiddleware, async function (req, res) {
     try {
         console.log("[*] Fetching all chatrooms")
 
