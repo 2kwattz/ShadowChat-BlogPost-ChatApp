@@ -404,24 +404,6 @@ router.post("/login", async function (req, res) {
 
         }
 
-
-        // Validating identifier for username/email
-
-
-        // JSON Response only for testing purpose
-        // if (isEmail) {
-        //     return res.json({
-        //         status: true,
-        //         message: "Identifier is an email address"
-        //     })
-        // }
-        // else {
-        //     return res.json({
-        //         status: true,
-        //         message: "Identifier is a username"
-        //     })
-        // }
-
         // Verifying User from Database
 
         // Fake Hash to prevent enumeration attack via response timing

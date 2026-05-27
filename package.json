@@ -9,6 +9,8 @@
   "author": "Roshan Bhatia",
   "license": "ISC",
   "dependencies": {
+    "@apollo/server": "^5.5.1",
+    "@as-integrations/express5": "^1.1.2",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.2",
     "compression": "^1.8.1",
@@ -16,6 +18,7 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.1",
+    "graphql": "^16.14.0",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
     "ioredis": "^5.10.1",
