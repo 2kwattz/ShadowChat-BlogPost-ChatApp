@@ -8,7 +8,6 @@ const xss = require("xss"); // Cross Site Scripting Prevention
 const hpp = require("hpp"); // HTTP Parameter Pollution Protection
 const http = require("http"); // Inbuilt Http Server
 const { Server } = require("socket.io"); // Socket.io Web Socket Server
-const { ApolloServer } = require('@apollo/server'); // Apollo Server for GraphQL
 const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Express Bridge
 
 // Custom Middlewares
@@ -33,37 +32,13 @@ const PORT = process.env.PORT || 3000;
 
 const app = express(); // Express Server Instance
 const server = http.createServer(app); // Web Socket Server Instance
-const apolloServer = new ApolloServer({
-    typeDefs: `type User {
-    userId: ID!
-    firstName: String!
-    lastName: String!
-    email: String!
-    username: String!
-    password: String!
-    gender: String!
-    role: String!
-    date_of_birth: String!
-    }
-    
-    type Query{
-    getUsers: [User]
-    }
-    
-    
-    `,
-    resolvers: {
-
-    },
-}) // Apollo Server Instance for GraphQL
+const apolloServer = require("../graphql/server/apolloServer") // Apollo Server Instance for GraphQL
 
 
 
 async function startServer() {
     try {
         await apolloServer.start(); // Initializing Apollo Server
-
-        console.log("[*] Apollo Server Initialized");
 
         // Middlewares
         app.use(express.json({ limit: "100kb" }));
