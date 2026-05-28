@@ -429,16 +429,6 @@ router.post("/login", async function (req, res) {
         const fakeHash = "$2b$10$KbQiM6TA6L/2esL8hWT8EOV9V7sXxJ0L0K9lK1w2r0kM7rj8yP6yS";
         let users;
 
-        // const [users] = await pool.execute(
-        //     `
-        //     SELECT userId, email, password, username FROM users
-        //     WHERE email = ? OR username = ?
-        //     LIMIT 1
-        //     `,
-        //     [identifier, identifier]
-        // );
-
-
         if (isEmail) {
 
             [users] = await pool.execute(`

@@ -13,7 +13,7 @@ function Dashboard() {
   return (
     <div>
       <h1>Dashboard</h1>
-      <p>Welcome {user?.user?.firstName}</p>
+      <p>Welcome {user?.user?.firstName} {user?.user?.lastName}</p>
     </div>
   );
 }
