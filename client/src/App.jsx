@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState,useEffect } from "react";
+import ProtectedRoute from "./pages/ProtectedRoute";
 
 // Pages
 import Home from "./pages/Home/Home";
@@ -19,7 +20,14 @@ function App() {
 
         <Route path="/signup" element={<Signup />} />
 
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={
+
+          <ProtectedRoute>
+
+            <Dashboard />
+          </ProtectedRoute>
+          
+          } />
 
         <Route path="/room/all" element={<Chatroom />} />
 

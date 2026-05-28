@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { userLogin } from "../../services/api";
+import { useAuth } from "../../context/authContext";
+
 
 function Login() {
 
@@ -8,6 +11,9 @@ function Login() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
 
+  // Navigation
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
 
   // Login Function
@@ -22,13 +28,16 @@ function Login() {
 
     // API Call Here
 
-    try{
-      const response = await userLogin({identifier,password})
-      console.log("Login Response ",response)
+    try {
+      const response = await userLogin({ identifier, password })
+      console.log("Login Response ", response);
+      setUser(response);
+      console.log("Response User ",response)
+      navigate("/dashboard");
 
     }
-    catch(error){
-      console.log("Error in Login Response ",error.response.data)
+    catch (error) {
+      console.log("Error in Login Response ", error.response.data)
     }
 
   };

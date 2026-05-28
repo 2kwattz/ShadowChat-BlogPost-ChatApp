@@ -13,7 +13,8 @@ const deviceParser = require("../utils/deviceParser"); // Device User Agent Pars
 const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
 const { formatName } = require("../utils/commonHelpers"); // Common Helper Functions
 
-const { pool } = require("../db/conn")
+const { pool } = require("../db/conn");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 // Disposable / Temp Mail Domains
 const blockedDomains = [
@@ -316,9 +317,9 @@ router.post("/register", async function (req, res) {
         }
 
         res.cookie("token", token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -491,9 +492,9 @@ router.post("/login", async function (req, res) {
 
         // Setting JWT token in cookie
         res.cookie("token", token, {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -512,5 +513,20 @@ router.post("/login", async function (req, res) {
         })
     }
 
+})
+
+// Auth Verification
+
+router.get("/me",authMiddleware,function(req,res){
+    try{
+        return res.json({
+            success: true,
+            user: req.user
+        })
+    }
+    catch(error){
+        console.log(`[*] Error. Cannot Decode User ${error.message || error}`)
+
+    }
 })
 module.exports = router;

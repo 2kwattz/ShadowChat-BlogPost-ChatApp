@@ -36,7 +36,12 @@ const app = express(); // Express Server Instance
 const server = http.createServer(app); // Web Socket Server Instance
 const apolloServer = require("../graphql/server/apolloServer") // Apollo Server Instance for GraphQL
 
+// Allowed Origins
 
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+];
 
 async function startServer() {
     try {
@@ -45,14 +50,14 @@ async function startServer() {
         // Middlewares
         app.use(express.json({ limit: "100kb" }));
         app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+        app.use(cookieParser()); // Cookie Parser
         app.use(compression()); // GZip/ Deflate compression
         app.use(helmet({contentSecurityPolicy: process.env.NODE_ENV === "development" ? false : true})); // Basic Security
-        app.use(cors({ origin: "*", credentials: true })); // CORS Implementation (Allowing all domains temporarily)
+        app.use(cors({ origin: allowedOrigins, credentials: true })); // CORS Implementation (Allowing all domains temporarily)
         app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
-        app.use(cookieParser()); // Cookie Parser
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
         
         // Home & Test Routes

@@ -1,15 +1,32 @@
-import axios from "axios"; // HTTP Request Maker
+import networkClient from "./networkClient"; // Axios Instance
 
-const BASE_URL = "http://192.168.0.195:3000";
-// const BASE_URL = "http://localhost:3000/";
+// const BASE_URL = "http://192.168.0.195:3000";
+const BASE_URL = "http://localhost:3000/";
+
+// Verify Login
+
+export const userVerification = async() => {
+    try{
+        console.log("[*] Verifying User Frontend")
+        const response = await networkClient.get(
+            `/auth/me`,
+        );
+
+        return response.data
+    }
+    catch(error){
+        console.error(`Error in calling User Verification API ${error}`)
+        throw error;
+    }
+}
 
 // User Login
 
 export const userLogin = async(data) => {
     try{
         console.log("data", data)
-        const response = await axios.post(
-            `${BASE_URL}/auth/login`,
+        const response = await networkClient.post(
+            `/auth/login`,
             data,
         );
 
@@ -25,8 +42,8 @@ export const userLogin = async(data) => {
 
 export const userRegistration = async(data) => {
     try{
-        const response = await axios.post(
-            `${BASE_URL}/auth/register`,
+        const response = await networkClient.post(
+            `/auth/register`,
             data
         );
 
@@ -42,8 +59,8 @@ export const userRegistration = async(data) => {
 
 export const listChatrooms = async(data) => {
     try{
-        const response = await axios.get(
-            `${BASE_URL}/room/all`);
+        const response = await networkClient.get(
+            `/room/all`);
 
             console.log("GET ROOMS FRONTEND")
 
