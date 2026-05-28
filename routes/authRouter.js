@@ -234,9 +234,13 @@ router.post("/register", async function (req, res) {
 
     try {
 
-        // Fetching User Information & Validation
+        console.log("[*] GET /Register route")
 
+        // Fetching User Information & Validation
         const cleanedBodyData = cleanXSS(req.body);
+
+         console.log("[*] Cleaned Req.body for XSS")
+
 
         // Request Body Validations
 
@@ -301,6 +305,12 @@ router.post("/register", async function (req, res) {
         const token = jwt.sign(
             {
                 id: result.insertId,
+                 firstName: cleanedBodyData.firstName,
+            lastName: cleanedBodyData.lastName,
+            email: cleanedBodyData.email,
+            gender: cleanedBodyData.gender,
+            bio: cleanedBodyData.bio,
+            role: cleanedBodyData.role 
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -432,7 +442,7 @@ router.post("/login", async function (req, res) {
         if (isEmail) {
 
             [users] = await pool.execute(`
-        SELECT userId, email, password, username
+        SELECT *
         FROM users
         WHERE email = ?
         LIMIT 1
@@ -442,7 +452,7 @@ router.post("/login", async function (req, res) {
 
             [users] = await pool.execute(
                 `
-        SELECT userId, email, password, username
+        SELECT *
         FROM users
         WHERE username = ?
         LIMIT 1
@@ -481,7 +491,13 @@ router.post("/login", async function (req, res) {
 
         // Generating JWT Token
         const token = jwt.sign({
-            id: user.userId
+            id: user.userId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            gender: user.gender,
+            bio: user.bio,
+            role: user.role 
         },
             process.env.JWT_SECRET_KEY, {
             expiresIn: "7d"
@@ -517,14 +533,14 @@ router.post("/login", async function (req, res) {
 
 // Auth Verification
 
-router.get("/me",authMiddleware,function(req,res){
-    try{
+router.get("/me", authMiddleware, function (req, res) {
+    try {
         return res.json({
             success: true,
             user: req.user
         })
     }
-    catch(error){
+    catch (error) {
         console.log(`[*] Error. Cannot Decode User ${error.message || error}`)
 
     }

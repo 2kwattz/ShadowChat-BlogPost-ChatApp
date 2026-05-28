@@ -23,6 +23,8 @@ export const AuthProvider = ({ children }) => {
 
                 const response = await userVerification();
 
+                console.log("REACT User Verification Response ",response)
+
                 setUser(response);
 
             } catch(error) {

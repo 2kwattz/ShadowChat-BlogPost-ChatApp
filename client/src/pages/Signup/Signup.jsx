@@ -3,7 +3,6 @@ import { userRegistration } from "../../services/api";
 
 const handleSubmit = (data) => {
 
-
 }
 
 function Signup() {
@@ -23,10 +22,11 @@ function Signup() {
       <input type="email" name="email" placeholder="Enter Email" />
       <br /><br />
 
-      <input type="username" placeholder="Enter Email" />
+      <input type="username" name="username" placeholder="Enter Username" />
       <br /><br />
 
-      <input type="password" placeholder="Enter Password" />
+      <input type="password" name="password" placeholder="Enter Password" />
+        <input type="password" name="confirmPassword" placeholder="Enter Password" />
       <br /><br />
 
       <input
