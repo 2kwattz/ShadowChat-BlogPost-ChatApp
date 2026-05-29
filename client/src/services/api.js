@@ -44,16 +44,29 @@ export const userRegistration = async(data) => {
     try{
         const response = await networkClient.post(
             `/auth/register`,
-            data
-        );
+            data);
 
         console.log("/Auth/Reg data ",response)
-
         return response.data
     }
     catch(error){
         console.error(`Error in calling User Registration API ${error.response.data}`)
         return error.response.data
+    }
+}
+
+// User Profile
+
+export const fetchUserProfile = async(data) => {
+    try{
+
+        const response = await networkClient.get(`/auth/myprofile`);
+        console.log("MyProfile API Response ",response);
+        return response.data
+
+    }
+    catch(error){
+
     }
 }
 

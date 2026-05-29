@@ -552,6 +552,35 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
     try {
         console.log("[*] GET /MyProfile");
 
+        // Fetching User Id from Request Header
+        const userId = req.user.id;
+
+        // Fetching User's data from database
+        const [users] = await pool.execute(`SELECT userId,firstName,lastName,email,username,gender,latitude,longitude,bio,profile_picture,created_at,gender,latitude,longitude,is_verified,date_of_birth,password FROM users WHERE userId = ? LIMIT 1`,[userId]);
+
+        // If user doesnt exist
+        if(users.length === 0){
+            console.log(`[*] GET /MyProfile : User not found`);
+
+            return res.json({
+                status:false,
+                message:"User not found"
+            })
+        }
+
+        // Storing User Info
+        const user = users[0];
+
+        console.log("[*] Console Logging User Info ",user);
+
+        return res.status(200).json({
+            status: true,
+            message: "User Details fetched successfully",
+            data: user,
+        })
+        
+
+
     }
     catch (error) {
         return res.status(500).json({

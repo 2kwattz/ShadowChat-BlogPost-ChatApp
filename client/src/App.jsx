@@ -8,6 +8,7 @@ import Login from "./pages/Login/Login";
 import Signup from "./pages/Signup/Signup";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Chatroom from "./pages/Chatrooms/Chatroom";
+import MyProfile from "./pages/MyProfile/myProfile";
 
 function App() {
   return (
@@ -28,6 +29,12 @@ function App() {
           </ProtectedRoute>
           
           } />
+
+        <Route path="/myprofile" element={
+          <ProtectedRoute>
+            <MyProfile/>
+          </ProtectedRoute>
+        }/>
 
         <Route path="/room/all" element={<Chatroom />} />
 
