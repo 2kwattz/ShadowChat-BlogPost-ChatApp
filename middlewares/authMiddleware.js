@@ -6,14 +6,7 @@ const authMiddleware = async (req, res, next) => {
 
           // Fetch token from cookies
 
-          console.log("REQ.COOKIES ",req.cookies)
         const token = req.cookies.token;
-
-        console.log("Cookies ",req.cookies)
-        
-
-
-        console.log("1")
 
         // If JWT Token is missing
         if (!token) {

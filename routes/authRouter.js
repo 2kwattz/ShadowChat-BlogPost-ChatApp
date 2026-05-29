@@ -3,6 +3,8 @@ const router = express.Router();
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
 const jwt = require("jsonwebtoken"); // JWT Authentication
 
+const redisClient = require("../redis/redisClient");
+
 // Templates
 const welcomeTemplate = require("../templates/welcome")
 
@@ -552,33 +554,70 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
     try {
         console.log("[*] GET /MyProfile");
 
+
         // Fetching User Id from Request Header
         const userId = req.user.id;
 
-        // Fetching User's data from database
-        const [users] = await pool.execute(`SELECT userId,firstName,lastName,email,username,gender,latitude,longitude,bio,profile_picture,created_at,gender,latitude,longitude,is_verified,date_of_birth,password FROM users WHERE userId = ? LIMIT 1`,[userId]);
+        // Fetching User from Redis Cache if its available
+        const cachedUser = await redisClient.get(`user:${userId}`);
 
-        // If user doesnt exist
-        if(users.length === 0){
-            console.log(`[*] GET /MyProfile : User not found`);
+        if (!cachedUser) {
 
-            return res.json({
-                status:false,
-                message:"User not found"
+            console.log("[*] User Profile Information not available in cache. Quering Database");
+
+            // Fetching User's data from database
+            const [users] = await pool.execute(`SELECT userId,firstName,lastName,email,username,gender,latitude,longitude,bio,profile_picture,created_at,gender,latitude,longitude,is_verified,date_of_birth,password FROM users WHERE userId = ? LIMIT 1`, [userId]);
+
+
+            // If user doesnt exist
+            if (users.length === 0) {
+
+                console.log(`[*] GET /MyProfile : User not found`);
+
+                return res.json({
+                    status: false,
+                    message: "User not found"
+                })
+            }
+
+            // Storing User Info
+            const user = users[0];
+
+            console.log("[*] Console Logging User Info ", user);
+
+            // Storing Data in Redis Cache
+
+            await redisClient.set(`user:${userId}`,JSON.stringify(user),
+            "EX",
+            86400
+        
+        );
+
+            console.log("[*] User Profile in Redis stored successfully");
+
+            return res.status(200).json({
+                status: true,
+                message: "User Details fetched successfully",
+                data: user,
             })
+
         }
 
-        // Storing User Info
-        const user = users[0];
+        else {
 
-        console.log("[*] Console Logging User Info ",user);
+            console.log(`[*] Redis Cache HIT`);
 
-        return res.status(200).json({
-            status: true,
-            message: "User Details fetched successfully",
-            data: user,
-        })
-        
+            return res.status(200).json({
+                status: true,
+                message: "User Details fetched sucessfully",
+                data: JSON.parse(cachedUser)
+
+            })
+
+
+
+        }
+
 
 
     }
