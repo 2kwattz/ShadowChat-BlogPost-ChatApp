@@ -18,6 +18,9 @@ const generalRateLimiter = require("../middlewares/generalRateLimiter");
 const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
 const fakeServerHeaders = require("../middlewares/spoofHeaders");
 
+// Caching 
+const redisClient = require("../redis/redisClient");
+
 // Utilities
 const deviceParser = require("../utils/deviceParser")
 
@@ -46,20 +49,20 @@ const allowedOrigins = [
 async function startServer() {
     try {
         await apolloServer.start(); // Initializing Apollo Server
-        
+
         // Middlewares
         app.use(express.json({ limit: "100kb" }));
         app.use(express.urlencoded({ extended: true, limit: "100kb" }));
         app.use(cookieParser()); // Cookie Parser
         app.use(compression()); // GZip/ Deflate compression
-        app.use(helmet({contentSecurityPolicy: process.env.NODE_ENV === "development" ? false : true})); // Basic Security
+        app.use(helmet({ contentSecurityPolicy: process.env.NODE_ENV === "development" ? false : true })); // Basic Security
         app.use(cors({ origin: allowedOrigins, credentials: true })); // CORS Implementation (Allowing all domains temporarily)
         app.use(generalRateLimiter); // IP Based Rate Limiting.Max 100 req /15min
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
-        
+
         // Home & Test Routes
 
         app.get("/", async (req, res) => {
@@ -113,6 +116,20 @@ async function startServer() {
 
             // Yet to add listeners
         })
+
+        // Redis Check 
+
+        redisClient.on("connect", function () {
+            console.log(`[*] Redis Client has been connected on port ${process.env.REDIS_PORT}`)
+        })
+
+        redisClient.on("error", (err) => {
+            console.error("[*] Error in Redis Client:", err.message);
+        });
+
+        redisClient.on("close", () => {
+            console.log("[*]  Redis Connection Closed. Have a nice day :)");
+        });
 
         // 404 Middleware
         app.use((req, res, next) => {

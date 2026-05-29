@@ -5,7 +5,6 @@ const redisClient = new Redis({
     port: process.env.REDIS_PORT
 }); // It will hit our redis server
 
-
 module.exports = redisClient
 
 
