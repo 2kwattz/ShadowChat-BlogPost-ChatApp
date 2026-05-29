@@ -15,28 +15,33 @@ export const AuthProvider = ({ children }) => {
 
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    const refreshUser = async () => {
 
-        const verifyUser = async () => {
+        try {
+            setLoading(true);
+            const response = await userVerification();
 
-            try {
-
-                const response = await userVerification();
-
-                console.log("REACT User Verification Response ",response)
-
-                setUser(response);
-
-            } catch(error) {
-
-                setUser(null);
+            if (response?.user) {
+                setUser(response.user);
+                return response.user;
             }
 
+            setUser(null);
+            return null;
+        }
+        catch (error) {
+            console.log("[*] Error in Auth Provider Context ", error);
+            setUser(null);
+            return null;
+        }
+        finally {
             setLoading(false);
-        };
+        }
+    }
 
-        verifyUser();
 
+    useEffect(() => {
+        refreshUser();
     }, []);
 
     return (
@@ -45,6 +50,7 @@ export const AuthProvider = ({ children }) => {
             value={{
                 user,
                 setUser,
+                refreshUser,
                 loading,
                 isAuthenticated: !!user
             }}

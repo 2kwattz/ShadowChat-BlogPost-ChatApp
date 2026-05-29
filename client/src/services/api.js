@@ -47,11 +47,13 @@ export const userRegistration = async(data) => {
             data
         );
 
+        console.log("/Auth/Reg data ",response)
+
         return response.data
     }
     catch(error){
-        console.error(`Error in calling User Registration API ${error}`)
-        throw error;
+        console.error(`Error in calling User Registration API ${error.response.data}`)
+        return error.response.data
     }
 }
 

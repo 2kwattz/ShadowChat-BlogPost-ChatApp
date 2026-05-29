@@ -13,7 +13,7 @@ function Login() {
 
   // Navigation
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  const { refreshUser } = useAuth();
 
 
   // Login Function
@@ -31,7 +31,7 @@ function Login() {
     try {
       const response = await userLogin({ identifier, password })
       console.log("Login Response ", response);
-      setUser(response);
+      await refreshUser();
       console.log("Response User ",response)
       navigate("/dashboard");
 

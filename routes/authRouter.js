@@ -249,10 +249,15 @@ router.post("/register", async function (req, res) {
         cleanedBodyData.firstName = formatName(cleanedBodyData.firstName);
         cleanedBodyData.lastName = formatName(cleanedBodyData.lastName);
 
+        console.log("[*] Cleaned Trimmed Data")
+
         const validation = validateData(cleanedBodyData);
+
+        console.log("[*] Validated Data")
 
         // Validation Failed
         if (!validation.status) {
+            console.log("[*] Validation Failed")
             return res.status(400).json(validation);
         }
 
@@ -326,7 +331,7 @@ router.post("/register", async function (req, res) {
             });
         }
 
-        res.cookie("token", token, {
+        await res.cookie("token", token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
@@ -334,7 +339,7 @@ router.post("/register", async function (req, res) {
         });
 
 
-        res.status(201).json({
+        await res.status(201).json({
             status: true,
             message: "Registration Successful",
             token: token

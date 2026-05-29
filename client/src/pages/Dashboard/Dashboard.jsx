@@ -1,19 +1,21 @@
 import React,{useEffect,useState} from "react";
 import "./dashboard.css"
+// User Context
 import { useAuth } from "../../context/authContext";
 
-// User Context
 
 
 function Dashboard() {
+  const { user } = useAuth(); 
+
   useEffect(()=>{
     console.log("User Data => ",user)
-  },[])
-  const { user, setUser, loading, isAuthenticated } = useAuth(); 
+  },[user])
+
   return (
     <div>
       <h1>Dashboard</h1>
-      <p>Welcome {user?.user?.firstName} {user?.user?.lastName}</p>
+      <p>Welcome {user?.firstName} {user?.lastName}</p>
     </div>
   );
 }
