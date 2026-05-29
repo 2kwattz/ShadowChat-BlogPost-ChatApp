@@ -239,7 +239,7 @@ router.post("/register", async function (req, res) {
         // Fetching User Information & Validation
         const cleanedBodyData = cleanXSS(req.body);
 
-         console.log("[*] Cleaned Req.body for XSS")
+        console.log("[*] Cleaned Req.body for XSS")
 
 
         // Request Body Validations
@@ -310,12 +310,12 @@ router.post("/register", async function (req, res) {
         const token = jwt.sign(
             {
                 id: result.insertId,
-                 firstName: cleanedBodyData.firstName,
-            lastName: cleanedBodyData.lastName,
-            email: cleanedBodyData.email,
-            gender: cleanedBodyData.gender,
-            bio: cleanedBodyData.bio,
-            role: cleanedBodyData.role 
+                firstName: cleanedBodyData.firstName,
+                lastName: cleanedBodyData.lastName,
+                email: cleanedBodyData.email,
+                gender: cleanedBodyData.gender,
+                bio: cleanedBodyData.bio,
+                role: cleanedBodyData.role
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -492,7 +492,7 @@ router.post("/login", async function (req, res) {
             email: user.email,
             gender: user.gender,
             bio: user.bio,
-            role: user.role 
+            role: user.role
         },
             process.env.JWT_SECRET_KEY, {
             expiresIn: "7d"
@@ -536,7 +536,28 @@ router.get("/me", authMiddleware, function (req, res) {
         })
     }
     catch (error) {
-        console.log(`[*] Error. Cannot Decode User ${error.message || error}`)
+        console.log(`[*] Error. Cannot Decode User ${error.message || error}`);
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
+
+
+    }
+})
+
+// User Profile
+
+router.get("/myprofile", authMiddleware, async function (req, res) {
+    try {
+        console.log("[*] GET /MyProfile");
+
+    }
+    catch (error) {
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
 
     }
 })
