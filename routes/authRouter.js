@@ -587,11 +587,11 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
 
             // Storing Data in Redis Cache
 
-            await redisClient.set(`user:${userId}`,JSON.stringify(user),
-            "EX",
-            86400
-        
-        );
+            await redisClient.set(`user:${userId}`, JSON.stringify(user),
+                "EX",
+                86400
+
+            );
 
             console.log("[*] User Profile in Redis stored successfully");
 
@@ -600,7 +600,6 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
                 message: "User Details fetched successfully",
                 data: user,
             })
-
         }
 
         else {
@@ -613,13 +612,7 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
                 data: JSON.parse(cachedUser)
 
             })
-
-
-
         }
-
-
-
     }
     catch (error) {
         return res.status(500).json({
@@ -629,4 +622,59 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
 
     }
 })
+
+// Fetch User Devices
+router.get("/mydevices", authMiddleware, async function (req, res) {
+    try {
+        console.log(`[*] GET /MyDevices`);
+
+        // Fetching User Id
+        console.log("[*] My Devices REQ.USER DATA ",req.user)
+        const userId = req.user.id
+
+        console.log("[*] User Id fetched ",userId)
+
+        if (!userId) {
+            return res.status(401).json({
+                status: false,
+                message: "Invalid User",
+            })
+        }
+
+        console.log("[*] Fetched User Id ", userId);
+
+        const [devices] = await pool.execute("SELECT * FROM user_devices WHERE userId =?", [userId]);
+
+        console.log("[*] User Devices Info fetched ", devices);
+
+        if (devices.length === 0) {
+
+            // If No devices are stored in database
+            return res.status(200).json({
+                status: true,
+                message: "User does not have any registered devices",
+                devices:[]
+            })
+        }
+
+        return res.status(200).json({
+            status: true,
+            message: "User devices fetched successfully",
+            devices: devices
+        })
+    }
+    catch (error) {
+
+        console.log(`[*] Error in fetching User Devices ${error.message || error} `)
+
+        return res.status(500).json({
+            status: false,
+            message: "Error fetching user devices"
+        })
+
+
+    }
+})
+
+
 module.exports = router;

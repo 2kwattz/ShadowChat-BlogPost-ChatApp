@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import ProtectedRoute from "./pages/ProtectedRoute";
 
 // Pages
@@ -9,6 +9,7 @@ import Signup from "./pages/Signup/Signup";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Chatroom from "./pages/Chatrooms/Chatroom";
 import MyProfile from "./pages/MyProfile/myProfile";
+import UserDevices from "./pages/UserDevices/UserDevices";
 
 function App() {
   return (
@@ -27,19 +28,27 @@ function App() {
 
             <Dashboard />
           </ProtectedRoute>
-          
-          } />
+
+        } />
 
         <Route path="/myprofile" element={
           <ProtectedRoute>
-            <MyProfile/>
+            <MyProfile />
           </ProtectedRoute>
-        }/>
+        } />
 
         <Route path="/room/all" element={<Chatroom />} />
 
-      </Routes>
-    </BrowserRouter>
+        <Route path="/mydevices" element={
+          <ProtectedRoute>
+          <UserDevices/>
+          </ProtectedRoute>
+
+        }
+        />
+
+    </Routes>
+    </BrowserRouter >
   );
 }
 

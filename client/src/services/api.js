@@ -63,10 +63,25 @@ export const fetchUserProfile = async(data) => {
         const response = await networkClient.get(`/auth/myprofile`);
         console.log("MyProfile API Response ",response);
         return response.data
-
     }
     catch(error){
+        console.log("Error fetching User Profile ",error.response.data)
+        return error.response.data;
+    }
+}
 
+// Get User Devices
+
+export const fetchUserDevices = async(data) => {
+    try{
+
+        const response = await networkClient.get(`/auth/mydevices`);
+        console.log("My Devices API Response ",response);
+        return response.data
+    }
+    catch(error){
+        console.log("Error fetching User Profile ",error.response.data)
+        return error.response.data;
     }
 }
 
