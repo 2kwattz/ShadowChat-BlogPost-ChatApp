@@ -342,15 +342,18 @@ router.post("/register", async function (req, res) {
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-        
 
+        try{
 
-        
-        await sendEmail(
-            cleanedBodyData.email,
-            "Welcome to ShadowChat",
-            welcomeTemplate(cleanedBodyData.firstName)
-        );
+            await sendEmail(
+                cleanedBodyData.email,
+                "Welcome to ShadowChat",
+                welcomeTemplate(cleanedBodyData.firstName)
+            );
+        }
+        catch(error){
+            console.log("[*] Error in sending Welcome/Registration Email")
+        }
         
         await res.status(201).json({
             status: true,
