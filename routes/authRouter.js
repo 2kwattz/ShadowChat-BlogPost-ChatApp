@@ -33,6 +33,7 @@ const allowedGenders = ["male", "female", "other"];
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
+
 // Validation Function
 
 const validateData = (data) => {
@@ -317,7 +318,7 @@ router.post("/register", async function (req, res) {
                 email: cleanedBodyData.email,
                 gender: cleanedBodyData.gender,
                 bio: cleanedBodyData.bio,
-                role: cleanedBodyData.role
+                role: role,
             },
             process.env.JWT_SECRET_KEY,
             {
@@ -353,6 +354,11 @@ router.post("/register", async function (req, res) {
             welcomeTemplate(cleanedBodyData.firstName)
         );
 
+        return res.status(201).json({
+            status: true,
+            message: "Account created successfully. Please check your email for confirmation code"
+        })
+
     }
 
     catch (error) {
@@ -378,12 +384,34 @@ router.post("/login", async function (req, res) {
 
         console.log("Clean Body Data ", cleanedBodyData)
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
-        const password = cleanedBodyData.password;
+        const password = cleanedBodyData.password.trim();
+        const deviceUUID = cleanedBodyData.deviceId.trim();
 
         console.log(`[*] Identifier `, identifier);
-        console.log(`[*] Password `, password);
+        console.log(`[*] Device UUID`, deviceUUID);
 
+        // Verifying Device UUID
 
+        if (!deviceUUID) {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid Device UUID"
+            })
+        }
+
+        // Device UUID Validation Regex
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+        // Device UUID Regex Test
+
+        if (!deviceUUID || !uuidRegex.test(deviceUUID)) {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid Device UUID"
+            });
+        }
+
+        // Identifier Validation
         if (!identifier) {
 
             console.log("[*] Identifier missing")
@@ -471,7 +499,11 @@ router.post("/login", async function (req, res) {
             })
         }
 
+        // Storing User Information
         const user = users[0];
+        const userId = user.userId;
+
+        console.log("[*] User Id /Login Route ", userId)
 
         const isPasswordCorrect = await bcrypt.compare(
             password,
@@ -485,6 +517,92 @@ router.post("/login", async function (req, res) {
                 message: "Invalid Credentials"
             })
         }
+
+        // Fetching User Agent from headers
+        const userAgent = req.headers['user-agent'];
+
+        // Parsing User Agent
+
+        const deviceInfoParsed = deviceParser(userAgent);
+
+        const browser = deviceInfoParsed?.browser?.name ?? null;
+        const browserVersion = deviceInfoParsed?.browser?.version ?? null;
+        const operatingSystem = deviceInfoParsed?.os?.name ?? null;
+        const osArchitecture = deviceInfoParsed?.cpu?.architecture ?? null;
+        const deviceVendor = deviceInfoParsed?.device?.vendor ?? null;
+        const deviceModel = deviceInfoParsed?.device?.model ?? null;
+        const osVersion = deviceInfoParsed?.os?.version ?? null;
+        const ipAddress = req.ip;
+        const isActive = true;
+        let deviceType = deviceInfoParsed?.device?.type ?? "Unknown";
+
+        deviceType =
+            deviceInfoParsed?.device?.type
+                ? deviceInfoParsed.device.type.charAt(0).toUpperCase() +
+                deviceInfoParsed.device.type.slice(1)
+                : "Unknown";
+
+
+        console.log("[*] Browser:", browser);
+        console.log("[*] Browser Version:", browserVersion);
+        console.log("[*] Operating System:", operatingSystem);
+        console.log("[*] OS Architecture:", osArchitecture);
+        console.log("[*] IP Address: ", ipAddress);
+        console.log("[*] Device Type : ", deviceType)
+
+
+
+        const [results] = await pool.execute(`
+
+            INSERT INTO user_devices (
+           device_uuid,
+            userId,
+            user_agent,
+            browser,
+            browser_version,
+            operating_system,
+            os_version,
+            os_architecture,
+            device_type,
+            device_vendor,
+            device_model,
+            ip_address,
+            is_active,
+            last_seen_at
+            )
+            VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+            )
+                
+        ON DUPLICATE KEY UPDATE
+        user_agent = VALUES(user_agent),
+        browser = VALUES(browser),
+        browser_version = VALUES(browser_version),
+        operating_system = VALUES(operating_system),
+        os_architecture = VALUES(os_architecture),
+        device_type = VALUES(device_type),
+        ip_address = VALUES(ip_address),
+        is_active = VALUES(is_active),
+        os_version = VALUES(os_version),
+        device_vendor = VALUES(device_vendor),
+        device_model = VALUES(device_model),
+        last_seen_at = NOW(),
+        updated_at = NOW()
+        `, [
+            deviceUUID,
+            user.userId,
+            userAgent,
+            browser,
+            browserVersion,
+            operatingSystem,
+            osVersion,
+            osArchitecture,
+            deviceType,
+            deviceVendor,
+            deviceModel,
+            ipAddress,
+            isActive
+        ]);
 
         // Generating JWT Token
         const token = jwt.sign({
@@ -510,7 +628,6 @@ router.post("/login", async function (req, res) {
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-
 
         return res.status(200).json({
             status: true,
@@ -586,13 +703,10 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
             console.log("[*] Console Logging User Info ", user);
 
             // Storing Data in Redis Cache
-
             await redisClient.set(`user:${userId}`, JSON.stringify(user),
                 "EX",
                 86400
-
             );
-
             console.log("[*] User Profile in Redis stored successfully");
 
             return res.status(200).json({
@@ -601,11 +715,9 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
                 data: user,
             })
         }
-
         else {
 
             console.log(`[*] Redis Cache HIT`);
-
             return res.status(200).json({
                 status: true,
                 message: "User Details fetched sucessfully",
@@ -629,10 +741,10 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
         console.log(`[*] GET /MyDevices`);
 
         // Fetching User Id
-        console.log("[*] My Devices REQ.USER DATA ",req.user)
+        console.log("[*] My Devices REQ.USER DATA ", req.user)
         const userId = req.user.id
 
-        console.log("[*] User Id fetched ",userId)
+        console.log("[*] User Id fetched ", userId)
 
         if (!userId) {
             return res.status(401).json({
@@ -653,7 +765,7 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
             return res.status(200).json({
                 status: true,
                 message: "User does not have any registered devices",
-                devices:[]
+                devices: []
             })
         }
 

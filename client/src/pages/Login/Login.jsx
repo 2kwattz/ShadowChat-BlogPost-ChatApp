@@ -15,6 +15,23 @@ function Login() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
 
+  const getDeviceId = () => {
+
+    // Fetching device id from localStorage
+    let deviceId = localStorage.getItem("deviceId");
+
+    if(!deviceId){
+
+      // Generating a Device UUID to uniquely identify a device for device tracking
+      deviceId = crypto.randomUUID();
+      localStorage.setItem("deviceId", deviceId);
+    }
+
+    console.log("[*] UUID Already exists. No new device UUID Generated")
+
+    return deviceId
+  }
+
 
   // Login Function
   const handleLogin = async (e) => {
@@ -28,8 +45,10 @@ function Login() {
 
     // API Call Here
 
+    const deviceId = getDeviceId()
+
     try {
-      const response = await userLogin({ identifier, password })
+      const response = await userLogin({ identifier, password,deviceId })
       console.log("Login Response ", response);
       await refreshUser();
       console.log("Response User ",response)
