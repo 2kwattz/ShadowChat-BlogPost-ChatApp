@@ -247,16 +247,18 @@ router.post("/register", async function (req, res) {
 
         // Request Body Validations
 
-        cleanedBodyData.email = cleanedBodyData.email?.trim().toLowerCase();
-        cleanedBodyData.username = cleanedBodyData.username?.trim().toLowerCase();
-        cleanedBodyData.firstName = formatName(cleanedBodyData.firstName);
-        cleanedBodyData.lastName = formatName(cleanedBodyData.lastName);
+        cleanedBodyData.email = cleanedBodyData?.email?.trim().toLowerCase();
+        cleanedBodyData.username = cleanedBodyData?.username?.trim().toLowerCase();
+        cleanedBodyData.firstName = formatName(cleanedBodyData?.firstName);
+        cleanedBodyData.lastName = formatName(cleanedBodyData?.lastName);
 
         console.log("[*] Cleaned Trimmed Data")
 
         const validation = validateData(cleanedBodyData);
 
-        console.log("[*] Validated Data")
+        console.log("[*] Validated Data");
+
+        
 
         // Validation Failed
         if (!validation.status) {
@@ -340,24 +342,33 @@ router.post("/register", async function (req, res) {
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
+        
 
 
-        await res.status(201).json({
-            status: true,
-            message: "Registration Successful",
-            token: token
-        });
-
+        
         await sendEmail(
             cleanedBodyData.email,
             "Welcome to ShadowChat",
             welcomeTemplate(cleanedBodyData.firstName)
         );
-
-        return res.status(201).json({
+        
+        await res.status(201).json({
             status: true,
-            message: "Account created successfully. Please check your email for confirmation code"
-        })
+            message: "Registration Successful. Please check email for verification code",
+            token: token
+        });
+
+        // Keeping track of User Device Inventory
+
+        // Fetching User Agent
+        const userAgent = req.headers['user-agent'];
+
+        // Parsing User Agent
+        const deviceInfoParsed = deviceParser(userAgent);
+
+        console.log("[*] Device Info Parsed /Register route ",deviceInfoParsed)
+
+     
 
     }
 
@@ -384,8 +395,8 @@ router.post("/login", async function (req, res) {
 
         console.log("Clean Body Data ", cleanedBodyData)
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
-        const password = cleanedBodyData.password.trim();
-        const deviceUUID = cleanedBodyData.deviceId.trim();
+        const password = cleanedBodyData.password?.trim();
+        const deviceUUID = cleanedBodyData.deviceId?.trim();
 
         console.log(`[*] Identifier `, identifier);
         console.log(`[*] Device UUID`, deviceUUID);
@@ -421,6 +432,17 @@ router.post("/login", async function (req, res) {
                 message: "Email or Username is required"
             })
         };
+
+        // Password Validation
+
+        if(!password){
+            console.log("[*] Password Missing");
+
+             return res.status(400).json({
+                status: false,
+                message: "Password is required"
+            })
+        }
 
         const isEmail = emailRegex.test(identifier);
 
@@ -518,7 +540,32 @@ router.post("/login", async function (req, res) {
             })
         }
 
-        // Fetching User Agent from headers
+        // Generating JWT Token
+        const token = jwt.sign({
+            id: user.userId,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            gender: user.gender,
+            bio: user.bio,
+            role: user.role
+        },
+            process.env.JWT_SECRET_KEY, {
+            expiresIn: "7d"
+        }
+        );
+
+        console.log(`[*] User ${user.username} logged in successfully`);
+
+        // Setting JWT token in cookie
+        res.cookie("token", token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+              // Fetching User Agent from headers
         const userAgent = req.headers['user-agent'];
 
         // Parsing User Agent
@@ -604,30 +651,6 @@ router.post("/login", async function (req, res) {
             isActive
         ]);
 
-        // Generating JWT Token
-        const token = jwt.sign({
-            id: user.userId,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            gender: user.gender,
-            bio: user.bio,
-            role: user.role
-        },
-            process.env.JWT_SECRET_KEY, {
-            expiresIn: "7d"
-        }
-        );
-
-        console.log(`[*] User ${user.username} logged in successfully`);
-
-        // Setting JWT token in cookie
-        res.cookie("token", token, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
 
         return res.status(200).json({
             status: true,
