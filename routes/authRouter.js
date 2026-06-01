@@ -237,69 +237,70 @@ router.post("/register", async function (req, res) {
 
     try {
 
-        console.log("[*] GET /Register route")
-
+        console.log("[*] POST /Register route")
+        
         // Fetching User Information & Validation
         const cleanedBodyData = cleanXSS(req.body);
 
         console.log("[*] Cleaned Req.body for XSS")
-
+        
 
         // Request Body Validations
-
+        
         cleanedBodyData.email = cleanedBodyData?.email?.trim().toLowerCase();
         cleanedBodyData.username = cleanedBodyData?.username?.trim().toLowerCase();
         cleanedBodyData.firstName = formatName(cleanedBodyData?.firstName);
         cleanedBodyData.lastName = formatName(cleanedBodyData?.lastName);
-
-        console.log("[*] Cleaned Trimmed Data")
-
-        const validation = validateData(cleanedBodyData);
-
-        console.log("[*] Validated Data");
-
         
-
+        
+        console.log("[*] Cleaned Trimmed Data")
+        
+        const validation = validateData(cleanedBodyData);
+        
+        console.log("[*] Validated Data");
+        
+        
+        
         // Validation Failed
         if (!validation.status) {
             console.log("[*] Validation Failed")
             return res.status(400).json(validation);
         }
-
+        
         console.log("[*] Checking existing users...");
-
+        
         // Verifying Username & Email Address
         const [existingUsers] = await pool.execute(`
             SELECT userId FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
-
-        if (existingUsers.length > 0) {
-
+            
+            if (existingUsers.length > 0) {
+                
             console.log(`[*] User Already Exists`)
             return res.status(409).json({
                 success: false,
                 message: "User already exists"
             });
         }
-
+        
         // Enforcing user's role as "User" since frontend cannot be trusted
         const role = "user";
-
+        
         // Hashing password using bcrypt
-
+        
         const hashedPassword = await bcrypt.hash(cleanedBodyData.password, 10);
-
+        
         // Registering User 
         const [result] = await pool.execute(`
             INSERT INTO users (
-            firstName,
-            lastName,
-            username,
-            email,
-            password,
-            gender,
-            date_of_birth,
-            role)
-            VALUES (?,?,?,?,?,?,?,?)`, [
+                firstName,
+                lastName,
+                username,
+                email,
+                password,
+                gender,
+                date_of_birth,
+                role)
+                VALUES (?,?,?,?,?,?,?,?)`, [
             cleanedBodyData.firstName,
             cleanedBodyData.lastName,
             cleanedBodyData.username,
@@ -309,9 +310,9 @@ router.post("/register", async function (req, res) {
             cleanedBodyData.date_of_birth,
             role
         ]);
-
+        
         // Generating JWT Token
-
+        
         const token = jwt.sign(
             {
                 id: result.insertId,
@@ -319,7 +320,6 @@ router.post("/register", async function (req, res) {
                 lastName: cleanedBodyData.lastName,
                 email: cleanedBodyData.email,
                 gender: cleanedBodyData.gender,
-                bio: cleanedBodyData.bio,
                 role: role,
             },
             process.env.JWT_SECRET_KEY,
@@ -327,7 +327,7 @@ router.post("/register", async function (req, res) {
                 expiresIn: "7d"
             }
         );
-
+        
         // Upon Token Generation failure
         if (!token) {
             return res.status(500).json({
@@ -335,31 +335,48 @@ router.post("/register", async function (req, res) {
                 message: "Token generation failed"
             });
         }
-
+        
         await res.cookie("token", token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-
-        try{
-
+        
+        try {
+            
             await sendEmail(
                 cleanedBodyData.email,
                 "Welcome to ShadowChat",
                 welcomeTemplate(cleanedBodyData.firstName)
             );
         }
-        catch(error){
+        catch (error) {
             console.log("[*] Error in sending Welcome/Registration Email")
         }
         
-        await res.status(201).json({
-            status: true,
-            message: "Registration Successful. Please check email for verification code",
-            token: token
-        });
+        const deviceUUID = cleanedBodyData.deviceId?.trim();
+
+              // Verifying Device UUID
+
+        if (!deviceUUID) {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid Device UUID"
+            })
+        }
+
+        // Device UUID Validation Regex
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+        // Device UUID Regex Test
+
+        if (!deviceUUID || !uuidRegex.test(deviceUUID)) {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid Device UUID"
+            });
+        }
 
         // Keeping track of User Device Inventory
 
@@ -369,9 +386,95 @@ router.post("/register", async function (req, res) {
         // Parsing User Agent
         const deviceInfoParsed = deviceParser(userAgent);
 
-        console.log("[*] Device Info Parsed /Register route ",deviceInfoParsed)
+        console.log("[*] Device Info Parsed /Register route ", deviceInfoParsed);
 
-     
+        const browser = deviceInfoParsed?.browser?.name ?? null;
+        const browserVersion = deviceInfoParsed?.browser?.version ?? null;
+        const operatingSystem = deviceInfoParsed?.os?.name ?? null;
+        const osArchitecture = deviceInfoParsed?.cpu?.architecture ?? null;
+        const deviceVendor = deviceInfoParsed?.device?.vendor ?? null;
+        const deviceModel = deviceInfoParsed?.device?.model ?? null;
+        const osVersion = deviceInfoParsed?.os?.version ?? null;
+        const ipAddress = req.ip;
+        const isActive = true;
+        let deviceType = deviceInfoParsed?.device?.type ?? "Unknown";
+
+        deviceType = deviceInfoParsed?.device?.type
+                ? deviceInfoParsed.device.type.charAt(0).toUpperCase() +
+                deviceInfoParsed.device.type.slice(1)
+                : "Unknown";
+
+        console.log("[*] Browser:", browser);
+        console.log("[*] Browser Version:", browserVersion);
+        console.log("[*] Operating System:", operatingSystem);
+        console.log("[*] OS Architecture:", osArchitecture);
+        console.log("[*] IP Address: ", ipAddress);
+        console.log("[*] Device Type : ", deviceType);
+
+
+        console.log(`[*] Device UUID`, deviceUUID);
+
+
+        const [results] = await pool.execute(`
+
+            INSERT INTO user_devices (
+           device_uuid,
+            userId,
+            user_agent,
+            browser,
+            browser_version,
+            operating_system,
+            os_version,
+            os_architecture,
+            device_type,
+            device_vendor,
+            device_model,
+            ip_address,
+            is_active,
+            last_seen_at
+            )
+            VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
+            )
+                
+        ON DUPLICATE KEY UPDATE
+        user_agent = VALUES(user_agent),
+        browser = VALUES(browser),
+        browser_version = VALUES(browser_version),
+        operating_system = VALUES(operating_system),
+        os_architecture = VALUES(os_architecture),
+        device_type = VALUES(device_type),
+        ip_address = VALUES(ip_address),
+        is_active = VALUES(is_active),
+        os_version = VALUES(os_version),
+        device_vendor = VALUES(device_vendor),
+        device_model = VALUES(device_model),
+        last_seen_at = NOW(),
+        updated_at = NOW()
+        `, [
+            deviceUUID,
+            result.insertId,
+            userAgent,
+            browser,
+            browserVersion,
+            operatingSystem,
+            osVersion,
+            osArchitecture,
+            deviceType,
+            deviceVendor,
+            deviceModel,
+            ipAddress,
+            isActive
+        ]);
+
+        await res.status(201).json({
+            status: true,
+            message: "Registration Successful. Please check email for verification code",
+            token: token
+        });
+
+
+
 
     }
 
@@ -438,10 +541,10 @@ router.post("/login", async function (req, res) {
 
         // Password Validation
 
-        if(!password){
+        if (!password) {
             console.log("[*] Password Missing");
 
-             return res.status(400).json({
+            return res.status(400).json({
                 status: false,
                 message: "Password is required"
             })
@@ -568,7 +671,7 @@ router.post("/login", async function (req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
-              // Fetching User Agent from headers
+        // Fetching User Agent from headers
         const userAgent = req.headers['user-agent'];
 
         // Parsing User Agent
@@ -591,7 +694,6 @@ router.post("/login", async function (req, res) {
                 ? deviceInfoParsed.device.type.charAt(0).toUpperCase() +
                 deviceInfoParsed.device.type.slice(1)
                 : "Unknown";
-
 
         console.log("[*] Browser:", browser);
         console.log("[*] Browser Version:", browserVersion);
