@@ -503,6 +503,7 @@ router.post("/login", async function (req, res) {
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
         const password = cleanedBodyData.password?.trim();
         const deviceUUID = cleanedBodyData.deviceId?.trim();
+        const userIpAddress = req.ip;
 
         console.log(`[*] Identifier `, identifier);
         console.log(`[*] Device UUID`, deviceUUID);
