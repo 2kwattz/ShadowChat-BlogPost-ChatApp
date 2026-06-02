@@ -1,10 +1,13 @@
 import { useState,useEffect } from "react";
 import styles from "./navbar.module.css";
+import '../../styles/main.css'
 
 
 function Navbar(){
     return (
-            <h1> Test Navbar</h1>
+            <div className="navbarWrapper">
+
+            </div>
     )
 }
 

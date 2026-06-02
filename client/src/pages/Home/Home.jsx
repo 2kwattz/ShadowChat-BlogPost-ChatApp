@@ -1,13 +1,17 @@
 import { useState,useEffect } from "react";
 
 // Components
-import Navbar from '../../components/navbar';
+import Navbar from '../../components/navbar/navbar';
 
 function Home() {
   return (
-    <div>
+    <React.Fragment>
+      <Navbar/>
+      <div>
       <h1>Home Page</h1>
     </div>
+
+    </React.Fragment>
   );
 }
 
