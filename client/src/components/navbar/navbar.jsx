@@ -5,8 +5,8 @@ import '../../styles/main.css'
 
 function Navbar(){
     return (
-            <div className="navbarWrapper">
-
+            <div className={styles.navbarWrapper}>
+TEST
             </div>
     )
 }

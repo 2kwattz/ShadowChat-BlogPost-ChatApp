@@ -1,16 +1,18 @@
 /* CSS RESET */
 
-*{
+* {
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
 }
 
-/* Root Colors */
+/* ROOT COLORS */
 
-:root{
+:root {
     --bg-dark-primary: #060810;
     --bg-dark-secondary: #090c17;
+
+    --bg-navbar: rgba(6,8,16,0.80);
 
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
@@ -18,43 +20,48 @@
 
     --darkpink-primary: #201025;
     --darkpurple-primary: #141025;
-    --darkpurple-secondary:#1c1025;
+    --darkpurple-secondary: #1c1025;
 
     --cyan-primary: #22d3ee;
-    --cyan-secondary:#67e8f9;
-    --cyan-tertiary :#a5f3fc;
+    --cyan-secondary: #67e8f9;
+    --cyan-tertiary: #a5f3fc;
 
     --cyan-dark-primary: #0891b2;
-    --cyan-glow-primary: #rgba(34,211,238,0.20);
-    --cyan-glow-secondary: #rgba(34,211,238,0.08);
-    --cyan-border: #rgba(34,211,238,0.30);
+    --cyan-glow-primary: #rgba(34, 211, 238, 0.20);
+    --cyan-glow-secondary: #rgba(34, 211, 238, 0.08);
+    --cyan-border: #rgba(34, 211, 238, 0.30);
 
     --lightpurple-primary: #a78bfa;
     --lightpurple-secondary: #c4b5fd;
     --lightpurple-tertiary: #ede9fe;
 
     --purple-primary: #7c3aed;
-    --purple-glow-primary: #rgba(167,139,250,0.20);
-    --purple-glow-secondary: #rgba(167,139,250,0.08);
-    --purple-border-primary: #rgba(167,139,250,0.30);
+    --purple-glow-primary: #rgba(167, 139, 250, 0.20);
+    --purple-glow-secondary: #rgba(167, 139, 250, 0.08);
+    --purple-border-primary: #rgba(167, 139, 250, 0.30);
 
     --text-white-1: #f0f4ff;
     --text-white-2: #b8c8e8;
     --text-white-3: #6a7fa8;
     --text-white-4: #303b54;
 
-     /* AMBER — secondary accent: badges, hot labels, featured, CTA highlights */
+    /* AMBER - Secondary Accent: Badges, Hot Labels, Featured, CTA highlights */
 
-     
+    --amber-primary: #f59e0b;
+    --amber-secondary: #fbbf24;
+    --amber-tertiary: #fde68a;
+    --amber-dark: #b45309;
+    --amber-glow: rgba(245, 158, 11, 0.20);
+    --amber-glow2: rgba(245, 158, 11, 0.09);
+    --amber-border: rgba(245, 158, 11, 0.32);
 
+    --hot: #fb923c;
+    --green: #34d399;
+    --red: #f43f5e;
+}
 
+/* ROOT HTML */
 
-
-
-
-
-
-
-
-
+html{
+    scroll-behavior:smooth
 }
