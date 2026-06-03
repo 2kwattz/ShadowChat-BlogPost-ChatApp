@@ -503,7 +503,7 @@ router.post("/login", async function (req, res) {
         const identifier = cleanedBodyData.identifier?.trim().toLowerCase();
         const password = cleanedBodyData.password?.trim();
         const deviceUUID = cleanedBodyData.deviceId?.trim();
-        const userIpAddress = req.ip;
+        const ipAddress = req.ip;
 
         console.log(`[*] Identifier `, identifier);
         console.log(`[*] Device UUID`, deviceUUID);
@@ -615,9 +615,14 @@ router.post("/login", async function (req, res) {
             );
         }
 
+
+        const MAX_LOGIN_ATTEMPTS = 10;
+        const MAX_BRUTE_TIME_WINDOW = 15 * 60;
+
         // Storing User Information
         const user = users[0];
-        const userId = user.userId;
+
+        let key; // User Key for bruteforce prevention
 
         // Validation if user does not exist
         if (users.length === 0) {
@@ -626,11 +631,21 @@ router.post("/login", async function (req, res) {
             await bcrypt.compare(password, fakeHash);
 
             // Storing UserId + Ip Address Unique key in redis for IP + Email based bruteforce prevention
-            const key = `login:${userId}:${ipAddress}`;
+            key = `login:${identifier}:${ipAddress}`;
 
-            // Fetching login attempts from Redis Cache
-            const loginAttempts = await redisClient.get(key);
+            // Fetching and incrementing login attempts from Redis Cache
+            const attempt_count = await redisClient.incr(key);
 
+            attempt_count === 1 && await redisClient.expire(key, MAX_BRUTE_TIME_WINDOW);
+
+            if (attempt_count >= MAX_LOGIN_ATTEMPTS) {
+                return res.status(429).json({
+                    status: false,
+                    message: "Too many requests. Please try again later"
+                })
+            }
+
+            req.bruteforceKey = key;
 
             return res.status(401).json({
                 status: false,
@@ -639,6 +654,21 @@ router.post("/login", async function (req, res) {
             })
         }
 
+        // Fetching User Id from DB
+        const userId = user?.userId;
+        key = `login:${userId}:${ipAddress}`;
+
+        // Fetching login attempts from Redis Cache
+        const loginAttempts = Number(await redisClient.get(key) || 0);
+
+        if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+            return res.status(429).json({
+                status: false,
+                message: "Too many requests. Please try again later"
+            })
+        }
+
+        req.bruteforceKey = key;
 
 
         console.log("[*] User Id /Login Route ", userId)
@@ -650,11 +680,23 @@ router.post("/login", async function (req, res) {
 
         // Validation if password is incorrect
         if (!isPasswordCorrect) {
+
+            const attempt_count = await redisClient.incr(key);
+
+            if (attempt_count === 1) {
+                await redisClient.expire(key, MAX_BRUTE_TIME_WINDOW);
+            }
+
             return res.status(401).json({
                 status: false,
                 message: "Invalid Credentials"
             })
         }
+
+        // On Correct Password
+
+        // Deleting Login Attempts
+        await redisClient.del(key);
 
         // Generating JWT Token
         const token = jwt.sign({
@@ -695,7 +737,6 @@ router.post("/login", async function (req, res) {
         const deviceVendor = deviceInfoParsed?.device?.vendor ?? null;
         const deviceModel = deviceInfoParsed?.device?.model ?? null;
         const osVersion = deviceInfoParsed?.os?.version ?? null;
-        const ipAddress = req.ip;
         const isActive = true;
         let deviceType = deviceInfoParsed?.device?.type ?? "Unknown";
 
@@ -773,6 +814,7 @@ router.post("/login", async function (req, res) {
             token: token
         })
     }
+
     catch (error) {
         console.log(`[*] Error in handling POST /api/login route ${error.message || error}`)
         return res.status(500).json({
