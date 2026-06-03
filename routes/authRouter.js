@@ -238,57 +238,57 @@ router.post("/register", async function (req, res) {
     try {
 
         console.log("[*] POST /Register route")
-        
+
         // Fetching User Information & Validation
         const cleanedBodyData = cleanXSS(req.body);
 
         console.log("[*] Cleaned Req.body for XSS")
-        
+
 
         // Request Body Validations
-        
+
         cleanedBodyData.email = cleanedBodyData?.email?.trim().toLowerCase();
         cleanedBodyData.username = cleanedBodyData?.username?.trim().toLowerCase();
         cleanedBodyData.firstName = formatName(cleanedBodyData?.firstName);
         cleanedBodyData.lastName = formatName(cleanedBodyData?.lastName);
-        
-        
+
+
         console.log("[*] Cleaned Trimmed Data")
-        
+
         const validation = validateData(cleanedBodyData);
-        
+
         console.log("[*] Validated Data");
-        
-        
-        
+
+
+
         // Validation Failed
         if (!validation.status) {
             console.log("[*] Validation Failed")
             return res.status(400).json(validation);
         }
-        
+
         console.log("[*] Checking existing users...");
-        
+
         // Verifying Username & Email Address
         const [existingUsers] = await pool.execute(`
             SELECT userId FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
-            
-            if (existingUsers.length > 0) {
-                
+
+        if (existingUsers.length > 0) {
+
             console.log(`[*] User Already Exists`)
             return res.status(409).json({
                 success: false,
                 message: "User already exists"
             });
         }
-        
+
         // Enforcing user's role as "User" since frontend cannot be trusted
         const role = "user";
-        
+
         // Hashing password using bcrypt
-        
+
         const hashedPassword = await bcrypt.hash(cleanedBodyData.password, 10);
-        
+
         // Registering User 
         const [result] = await pool.execute(`
             INSERT INTO users (
@@ -310,9 +310,9 @@ router.post("/register", async function (req, res) {
             cleanedBodyData.date_of_birth,
             role
         ]);
-        
+
         // Generating JWT Token
-        
+
         const token = jwt.sign(
             {
                 id: result.insertId,
@@ -327,7 +327,7 @@ router.post("/register", async function (req, res) {
                 expiresIn: "7d"
             }
         );
-        
+
         // Upon Token Generation failure
         if (!token) {
             return res.status(500).json({
@@ -335,16 +335,16 @@ router.post("/register", async function (req, res) {
                 message: "Token generation failed"
             });
         }
-        
+
         await res.cookie("token", token, {
             httpOnly: false,
             secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
-        
+
         try {
-            
+
             await sendEmail(
                 cleanedBodyData.email,
                 "Welcome to ShadowChat",
@@ -354,10 +354,10 @@ router.post("/register", async function (req, res) {
         catch (error) {
             console.log("[*] Error in sending Welcome/Registration Email")
         }
-        
+
         const deviceUUID = cleanedBodyData.deviceId?.trim();
 
-              // Verifying Device UUID
+        // Verifying Device UUID
 
         if (!deviceUUID) {
             return res.status(400).json({
@@ -400,9 +400,9 @@ router.post("/register", async function (req, res) {
         let deviceType = deviceInfoParsed?.device?.type ?? "Unknown";
 
         deviceType = deviceInfoParsed?.device?.type
-                ? deviceInfoParsed.device.type.charAt(0).toUpperCase() +
-                deviceInfoParsed.device.type.slice(1)
-                : "Unknown";
+            ? deviceInfoParsed.device.type.charAt(0).toUpperCase() +
+            deviceInfoParsed.device.type.slice(1)
+            : "Unknown";
 
         console.log("[*] Browser:", browser);
         console.log("[*] Browser Version:", browserVersion);
@@ -615,11 +615,22 @@ router.post("/login", async function (req, res) {
             );
         }
 
+        // Storing User Information
+        const user = users[0];
+        const userId = user.userId;
+
         // Validation if user does not exist
         if (users.length === 0) {
 
             // Fake hash to prevent timing based enumeration attack
             await bcrypt.compare(password, fakeHash);
+
+            // Storing UserId + Ip Address Unique key in redis for IP + Email based bruteforce prevention
+            const key = `login:${userId}:${ipAddress}`;
+
+            // Fetching login attempts from Redis Cache
+            const loginAttempts = await redisClient.get(key);
+
 
             return res.status(401).json({
                 status: false,
@@ -628,9 +639,7 @@ router.post("/login", async function (req, res) {
             })
         }
 
-        // Storing User Information
-        const user = users[0];
-        const userId = user.userId;
+
 
         console.log("[*] User Id /Login Route ", userId)
 
