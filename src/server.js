@@ -13,28 +13,30 @@ const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
 
 
 // Custom Middlewares
-const errorMiddleware = require("../middlewares/errorMiddleware");
-const generalRateLimiter = require("../middlewares/generalRateLimiter");
-const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard");
-const fakeServerHeaders = require("../middlewares/spoofHeaders");
+const errorMiddleware = require("../middlewares/errorMiddleware"); // General Error Middleware
+const generalRateLimiter = require("../middlewares/generalRateLimiter"); // General Rate Limiter
+const sqlInjectionGuard = require("../middlewares/sqlInjectionGuard"); // Prevents SQL Injection Attacks
+const fakeServerHeaders = require("../middlewares/spoofHeaders"); // Honeypot for Attackers
 
 // Caching 
 const redisClient = require("../redis/redisClient");
 
-// Utilities
+// Utility Functions
 const deviceParser = require("../utils/deviceParser");
 const geoLocationTracker = require("../utils/geoLocationTracker");
 
-// Main / Route is temporarily in Auth Routes
+// Routes 
+
+// Main '/' Route is temporarily in Auth Routes
 const authRouter = require("../routes/authRouter"); // Auth routes
 const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
 
+// Enviornment Variables
 require("dotenv").config(); // DOT ENV Declaration
 
-// MySQL Connection
-require("../db/conn");
+require("../db/conn"); // MySQL Connection
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000; // Node Port
 
 const app = express(); // Express Server Instance
 const server = http.createServer(app); // Web Socket Server Instance
@@ -47,13 +49,15 @@ const allowedOrigins = [
     "http://localhost:5174",
 ];
 
+// Node Server Initialization
+
 async function startServer() {
     try {
         await apolloServer.start(); // Initializing Apollo Server
 
         // Middlewares
-        app.use(express.json({ limit: "100kb" }));
-        app.use(express.urlencoded({ extended: true, limit: "100kb" }));
+        app.use(express.json({ limit: "100kb" })); // Request Body Handling with 100kb limit
+        app.use(express.urlencoded({ extended: true, limit: "100kb" })); // Form Data Handling with 100kb limit 
         app.use(cookieParser()); // Cookie Parser
         app.use(compression()); // GZip/ Deflate compression
         app.use(helmet({ contentSecurityPolicy: process.env.NODE_ENV === "development" ? false : true })); // Basic Security
@@ -68,23 +72,36 @@ async function startServer() {
 
         app.get("/", async (req, res) => {
 
-            // Temporarily used as a testing route for utilities/functions
+            try {
+                // Temporarily used as a testing route for utilities/functions
 
-            // GeoIP Location Testing
+                // GeoIP Location Testing
 
-            const userLocation = await geoLocationTracker(req.ip)
+                const userLocation = await geoLocationTracker(req.ip)
 
-            console.log(`[*] Fetched User Location `,userLocation)
-            // User Agent Testing
+                console.log(`[*] Fetched User Location `, userLocation)
+                // User Agent Testing
 
-            const userAgent = req.headers["user-agent"]; // User Device & Browser Details
-            const deviceInfo = JSON.stringify(deviceParser(userAgent), null, 2)
+                const userAgent = req.headers["user-agent"]; // User Device & Browser Details
+                const deviceInfo = JSON.stringify(deviceParser(userAgent), null, 2)
 
-            console.log(`[*] Test User Device Info ${deviceInfo}`)
-            res.json({
-                status: true,
-                message: "Home Route Working"
-            })
+                console.log(`[*] Test User Device Info ${deviceInfo}`);
+
+                res.status(200).json({
+                    status: true,
+                    message: "Home Route Working"
+                })
+            }
+            catch(error){
+                console.error("[*] Error in / Node Route ",error || error.message);
+
+                res.status(500).json({
+                    status:false,
+                    message: "Internal Server Error"
+                })
+            }
+
+           
         })
 
         app.get("/errorTest", (req, res, next) => {
@@ -129,14 +146,17 @@ async function startServer() {
 
         // Redis Check 
 
+        // Response on connecting to the Redis Server
         redisClient.on("connect", function () {
             console.log(`[*] Redis Client has been connected on port ${process.env.REDIS_PORT}`)
         })
 
+        // Response on Redis Error
         redisClient.on("error", (err) => {
             console.error("[*] Error in Redis Client:", err.message);
         });
 
+        // Response on connection closure
         redisClient.on("close", () => {
             console.log("[*]  Redis Connection Closed. Have a nice day :)");
         });
@@ -160,9 +180,9 @@ async function startServer() {
         });
     }
     catch (error) {
-        console.error("[*] Fatal startup error:", error);
+        console.error("[*] Fatal server startup error:", error);
         process.exit(1);
     }
 }
 
-startServer()
+startServer();
