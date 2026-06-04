@@ -693,9 +693,7 @@ router.post("/login", async function (req, res) {
             })
         }
 
-        // On Correct Password
-
-        // Deleting Login Attempts
+        // Deleting Login Attempts on correct password
         await redisClient.del(key);
 
         // Generating JWT Token
