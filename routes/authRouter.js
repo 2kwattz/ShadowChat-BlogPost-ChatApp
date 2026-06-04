@@ -853,6 +853,9 @@ router.post("/login", async function (req, res) {
 
         const deviceId = deviceResult.insertId;
 
+        console.log(deviceResult);
+console.log("Device ID =", deviceResult.insertId);
+
         // Creating User Device Mapping
         await conn.execute(`
     INSERT INTO user_devices

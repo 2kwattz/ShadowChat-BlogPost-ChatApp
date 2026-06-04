@@ -15,6 +15,9 @@ function Login() {
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
 
+  console.log("ALL LOCAL STORAGE");
+console.log(localStorage);
+
   const getDeviceId = () => {
 
     // Fetching device id from localStorage
@@ -51,7 +54,8 @@ function Login() {
       const response = await userLogin({ identifier, password,deviceId })
       console.log("Login Response ", response);
       await refreshUser();
-      console.log("Response User ",response)
+      console.log("Response User ",response);
+      console.log("[LOGIN] Device UUID:", deviceId);
       navigate("/dashboard");
 
     }
