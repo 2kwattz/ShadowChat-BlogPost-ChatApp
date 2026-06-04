@@ -237,6 +237,9 @@ const validateData = (data) => {
 
 router.post("/register", async function (req, res) {
 
+    // Required for SQL Transaction
+    const conn = await pool.getConnection();
+
     try {
 
         console.log("[*] POST /Register route")
@@ -261,8 +264,6 @@ router.post("/register", async function (req, res) {
 
         console.log("[*] Validated Data");
 
-
-
         // Validation Failed
         if (!validation.status) {
             console.log("[*] Validation Failed")
@@ -271,91 +272,7 @@ router.post("/register", async function (req, res) {
 
         console.log("[*] Checking existing users...");
 
-        // Verifying Username & Email Address
-        const [existingUsers] = await pool.execute(`
-            SELECT userId FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
-
-        if (existingUsers.length > 0) {
-
-            console.log(`[*] User Already Exists`)
-            return res.status(409).json({
-                success: false,
-                message: "User already exists"
-            });
-        }
-
-        // Enforcing user's role as "User" since frontend cannot be trusted
-        const role = "user";
-
-        // Hashing password using bcrypt
-
-        const hashedPassword = await bcrypt.hash(cleanedBodyData.password, 10);
-
-        // Registering User 
-        const [result] = await pool.execute(`
-            INSERT INTO users (
-                firstName,
-                lastName,
-                username,
-                email,
-                password,
-                gender,
-                date_of_birth,
-                role)
-                VALUES (?,?,?,?,?,?,?,?)`, [
-            cleanedBodyData.firstName,
-            cleanedBodyData.lastName,
-            cleanedBodyData.username,
-            cleanedBodyData.email,
-            hashedPassword,
-            cleanedBodyData.gender,
-            cleanedBodyData.date_of_birth,
-            role
-        ]);
-
-        // Generating JWT Token
-
-        const token = jwt.sign(
-            {
-                id: result.insertId,
-                firstName: cleanedBodyData.firstName,
-                lastName: cleanedBodyData.lastName,
-                email: cleanedBodyData.email,
-                gender: cleanedBodyData.gender,
-                role: role,
-            },
-            process.env.JWT_SECRET_KEY,
-            {
-                expiresIn: "7d"
-            }
-        );
-
-        // Upon Token Generation failure
-        if (!token) {
-            return res.status(500).json({
-                status: false,
-                message: "Token generation failed"
-            });
-        }
-
-        await res.cookie("token", token, {
-            httpOnly: false,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-        });
-
-        try {
-
-            await sendEmail(
-                cleanedBodyData.email,
-                "Welcome to ShadowChat",
-                welcomeTemplate(cleanedBodyData.firstName)
-            );
-        }
-        catch (error) {
-            console.log("[*] Error in sending Welcome/Registration Email")
-        }
+        // Device UUID Checking
 
         const deviceUUID = cleanedBodyData.deviceId?.trim();
 
@@ -380,7 +297,95 @@ router.post("/register", async function (req, res) {
             });
         }
 
+        // Verifying Username & Email Address
+        const [existingUsers] = await pool.execute(`
+            SELECT userId FROM users WHERE username = ? OR email = ? LIMIT 1`, [cleanedBodyData.username, cleanedBodyData.email]);
+
+        if (existingUsers.length > 0) {
+
+            console.log(`[*] User Already Exists`)
+            return res.status(409).json({
+                success: false,
+                message: "User already exists"
+            });
+        }
+
+        // Enforcing user's role as "User" since frontend cannot be trusted
+        const role = "user";
+
+        // Hashing password using bcrypt
+
+        const hashedPassword = await bcrypt.hash(cleanedBodyData.password, 10);
+
+        // Registering User 
+        const [userResult] = await pool.execute(`
+            INSERT INTO users (
+                firstName,
+                lastName,
+                username,
+                email,
+                password,
+                gender,
+                date_of_birth,
+                role)
+                VALUES (?,?,?,?,?,?,?,?)`, [
+            cleanedBodyData.firstName,
+            cleanedBodyData.lastName,
+            cleanedBodyData.username,
+            cleanedBodyData.email,
+            hashedPassword,
+            cleanedBodyData.gender,
+            cleanedBodyData.date_of_birth,
+            role
+        ]);
+
+        // Generating JWT Token
+
+        const token = jwt.sign(
+            {
+                id: userResult.insertId,
+                firstName: cleanedBodyData.firstName,
+                lastName: cleanedBodyData.lastName,
+                email: cleanedBodyData.email,
+                gender: cleanedBodyData.gender,
+                role: role,
+            },
+            process.env.JWT_SECRET_KEY,
+            {
+                expiresIn: "7d"
+            }
+        );
+
+        // Upon Token Generation failure
+        if (!token) {
+            return res.status(500).json({
+                status: false,
+                message: "Token generation failed"
+            });
+        }
+
+        res.cookie("token", token, {
+            httpOnly: false,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        try {
+
+            await sendEmail(
+                cleanedBodyData.email,
+                "Welcome to ShadowChat",
+                welcomeTemplate(cleanedBodyData.firstName)
+            );
+        }
+        catch (error) {
+            console.log("[*] Error in sending Welcome/Registration Email")
+        }
+
         // Keeping track of User Device Inventory
+
+        await conn.beginTransaction();
 
         // Fetching User Agent
         const userAgent = req.headers['user-agent'];
@@ -416,72 +421,109 @@ router.post("/register", async function (req, res) {
 
         console.log(`[*] Device UUID`, deviceUUID);
 
+        // Storing Current State of User's Device
 
-        const [results] = await pool.execute(`
+        const [deviceResults] = await conn.execute(
+            `
+        INSERT INTO devices (
+        device_uuid,
+        user_agent,
+        browser,
+        browser_version,
+        operating_system,
+        os_version,
+        os_architecture,
+        device_type,
+        device_vendor,
+        device_model
+    )
+    VALUES (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+    )
 
-            INSERT INTO user_devices (
-           device_uuid,
-            userId,
-            user_agent,
-            browser,
-            browser_version,
-            operating_system,
-            os_version,
-            os_architecture,
-            device_type,
-            device_vendor,
-            device_model,
-            ip_address,
-            is_active,
-            last_seen_at
-            )
-            VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
-            )
-                
-        ON DUPLICATE KEY UPDATE
-        user_agent = VALUES(user_agent),
-        browser = VALUES(browser),
-        browser_version = VALUES(browser_version),
-        operating_system = VALUES(operating_system),
-        os_architecture = VALUES(os_architecture),
-        device_type = VALUES(device_type),
-        ip_address = VALUES(ip_address),
-        is_active = VALUES(is_active),
-        os_version = VALUES(os_version),
-        device_vendor = VALUES(device_vendor),
-        device_model = VALUES(device_model),
-        last_seen_at = NOW(),
-        updated_at = NOW()
-        `, [
-            deviceUUID,
-            result.insertId,
-            userAgent,
-            browser,
-            browserVersion,
-            operatingSystem,
-            osVersion,
-            osArchitecture,
-            deviceType,
-            deviceVendor,
-            deviceModel,
-            ipAddress,
-            isActive
-        ]);
+    ON DUPLICATE KEY UPDATE
+    user_agent = VALUES(user_agent),
+    browser = VALUES(browser),
+    browser_version = VALUES(browser_version),
+    operating_system = VALUES(operating_system),
+    os_version = VALUES(os_version),
+    os_architecture = VALUES(os_architecture),
+    device_type = VALUES(device_type),
+    device_vendor = VALUES(device_vendor),
+    device_model = VALUES(device_model),
+    updated_at = NOW(),
+    id = LAST_INSERT_ID(id)
+`,
+            [
+                deviceUUID,
+                userAgent,
+                browser,
+                browserVersion,
+                operatingSystem,
+                osVersion,
+                osArchitecture,
+                deviceType,
+                deviceVendor,
+                deviceModel
+            ]
+        );
+
+        const deviceId = deviceResults.insertId;
+
+        console.log("[*] Device Registration/ Updation Confirmation ", deviceId);
+
+        // Updating User Device Mapping
+        await conn.execute(
+            `
+INSERT INTO user_devices
+(
+    userId,
+    deviceId,
+    ip_address,
+    is_active,
+    last_seen_at,
+    created_at,
+    updated_at
+)
+VALUES
+(
+    ?, ?, ?, TRUE, NOW(), NOW(), NOW()
+)
+ON DUPLICATE KEY UPDATE
+    ip_address = VALUES(ip_address),
+    is_active = TRUE,
+    last_seen_at = NOW(),
+    updated_at = NOW()
+`,
+            [
+                userResult.insertId,
+                deviceId,
+                ipAddress
+            ]
+        );
+
+
+        // SQL Transcation Completed
+        await conn.commit();
 
         await res.status(201).json({
             status: true,
             message: "Registration Successful. Please check email for verification code",
             token: token
         });
-
-
-
-
     }
 
     catch (error) {
         console.error(`[*] Error in registering user ${error.message || error}`);
+
+        // Rolling back transcation 
+        try{
+
+            await conn.rollback();
+        }
+        catch(error){
+            console.log("Error rolling back /REGISTER")
+        }
 
         // Manual Response
         return res.status(500).json({
@@ -490,14 +532,19 @@ router.post("/register", async function (req, res) {
         });
     }
 
-
+    finally {
+        conn.release();
+    }
 })
 
 router.post("/login", async function (req, res) {
+
+    // Required for SQL Transactions 
+    const conn = await pool.getConnection();
+
     try {
         console.log("[*] GET POST /Login Route ")
         const cleanedBodyData = cleanXSS(req.body); // Sanitizes values against XSS attacks for eg < will become &lt
-
 
         // Fetching username/email & password
 
@@ -590,9 +637,6 @@ router.post("/login", async function (req, res) {
 
         // Verifying User from Database
 
-        // Required for SQL Transactions 
-        // const connection = await pool.getConnection();
-
         // Fake Hash to prevent enumeration attack via response timing
         const fakeHash = "$2b$10$KbQiM6TA6L/2esL8hWT8EOV9V7sXxJ0L0K9lK1w2r0kM7rj8yP6yS";
         let users;
@@ -600,23 +644,21 @@ router.post("/login", async function (req, res) {
         if (isEmail) {
 
             [users] = await pool.execute(`
-        SELECT *
-        FROM users
-        WHERE email = ?
-        LIMIT 1
-        `, [identifier]);
+                SELECT *
+                FROM users
+                WHERE email = ?
+                LIMIT 1
+                `, [identifier]);
 
         } else {
 
             [users] = await pool.execute(
                 `
-        SELECT *
-        FROM users
-        WHERE username = ?
-        LIMIT 1
-        `,
-                [identifier]
-            );
+                SELECT *
+                FROM users
+                WHERE username = ?
+                LIMIT 1
+                `, [identifier])
         }
 
 
@@ -724,6 +766,12 @@ router.post("/login", async function (req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
+
+
+        // SQL Transaction Started
+        await conn.beginTransaction();
+
+
         // Fetching User Agent from headers
         const userAgent = req.headers['user-agent'];
 
@@ -753,58 +801,89 @@ router.post("/login", async function (req, res) {
         console.log("[*] IP Address: ", ipAddress);
         console.log("[*] Device Type : ", deviceType)
 
-        const [results] = await pool.execute(`
 
-            INSERT INTO user_devices (
-           device_uuid,
-            userId,
-            user_agent,
-            browser,
-            browser_version,
-            operating_system,
-            os_version,
-            os_architecture,
-            device_type,
-            device_vendor,
-            device_model,
-            ip_address,
-            is_active,
-            last_seen_at
-            )
-            VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW()
-            )
-                
+        // Storing Device Details in Device Tables
+        const [deviceResult] = await conn.execute(
+            `
+        INSERT INTO devices
+        (
+        device_uuid,
+        user_agent,
+        browser,
+        browser_version,
+        operating_system,
+        os_version,
+        os_architecture,
+        device_type,
+        device_vendor,
+        device_model,
+        created_at,
+        updated_at
+        )
+        VALUES
+        (
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW()
+        )
         ON DUPLICATE KEY UPDATE
         user_agent = VALUES(user_agent),
         browser = VALUES(browser),
         browser_version = VALUES(browser_version),
         operating_system = VALUES(operating_system),
+        os_version = VALUES(os_version),
         os_architecture = VALUES(os_architecture),
         device_type = VALUES(device_type),
-        ip_address = VALUES(ip_address),
-        is_active = VALUES(is_active),
-        os_version = VALUES(os_version),
         device_vendor = VALUES(device_vendor),
         device_model = VALUES(device_model),
+        updated_at = NOW(),
+        id = LAST_INSERT_ID(id)
+        `,
+            [
+                deviceUUID,
+                userAgent,
+                browser,
+                browserVersion,
+                operatingSystem,
+                osVersion,
+                osArchitecture,
+                deviceType,
+                deviceVendor,
+                deviceModel
+            ]
+        );
+
+        const deviceId = deviceResult.insertId;
+
+        // Creating User Device Mapping
+        await conn.execute(`
+    INSERT INTO user_devices
+    (
+    userId,
+    deviceId,
+    ip_address,
+    is_active,
+    last_seen_at,
+    created_at,
+    updated_at
+    )
+    VALUES
+    (
+        ?, ?, ?, TRUE, NOW(), NOW(), NOW()
+    )
+    ON DUPLICATE KEY UPDATE
+        ip_address = VALUES(ip_address),
+        is_active = TRUE,
         last_seen_at = NOW(),
         updated_at = NOW()
-        `, [
-            deviceUUID,
-            user.userId,
-            userAgent,
-            browser,
-            browserVersion,
-            operatingSystem,
-            osVersion,
-            osArchitecture,
-            deviceType,
-            deviceVendor,
-            deviceModel,
-            ipAddress,
-            isActive
-        ]);
+    `,
+            [
+                userId,
+                deviceId,
+                ipAddress
+            ]);
 
+
+        // SQL Transaction Completed
+        await conn.commit();
 
         return res.status(200).json({
             status: true,
@@ -814,11 +893,25 @@ router.post("/login", async function (req, res) {
     }
 
     catch (error) {
-        console.log(`[*] Error in handling POST /api/login route ${error.message || error}`)
+        console.log(`[*] Error in handling POST /api/login route ${error.message || error}`);
+
+        // Rolling back Device Inventory Queries in Error Scenario
+
+        try {
+            await conn.rollback();
+        } catch {
+            console.log("[*] Error executing Rollback in POST/Login")
+        }
+
+
         return res.status(500).json({
             status: false,
             message: "Internal Server Error"
         })
+    }
+
+    finally {
+        conn.release();
     }
 
 })
@@ -861,7 +954,7 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
             console.log("[*] User Profile Information not available in cache. Quering Database");
 
             // Fetching User's data from database
-            const [users] = await pool.execute(`SELECT userId,firstName,lastName,email,username,gender,latitude,longitude,bio,profile_picture,created_at,gender,latitude,longitude,is_verified,date_of_birth,password FROM users WHERE userId = ? LIMIT 1`, [userId]);
+            const [users] = await pool.execute(`SELECT userId,firstName,lastName,email,username,gender,latitude,longitude,bio,profile_picture,created_at,is_verified,date_of_birth FROM users WHERE userId = ? LIMIT 1`, [userId]);
 
 
             // If user doesnt exist
@@ -924,7 +1017,7 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
         console.log("[*] User Id fetched ", userId)
 
-        if (!userId) {
+        if (!Number.isInteger(userId) || userId <= 0) {
             return res.status(401).json({
                 status: false,
                 message: "Invalid User",
@@ -933,7 +1026,35 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
         console.log("[*] Fetched User Id ", userId);
 
-        const [devices] = await pool.execute("SELECT * FROM user_devices WHERE userId =?", [userId]);
+        const [devices] = await pool.execute(
+            `
+SELECT
+    d.id,
+    d.device_uuid,
+    d.browser,
+    d.browser_version,
+    d.operating_system,
+    d.os_version,
+    d.device_type,
+    d.device_vendor,
+    d.device_model,
+
+    ud.ip_address,
+    ud.is_active,
+    ud.last_seen_at,
+    ud.created_at
+
+FROM user_devices ud
+
+INNER JOIN devices d
+    ON d.id = ud.deviceId
+
+WHERE ud.userId = ?
+
+ORDER BY ud.last_seen_at DESC
+`,
+            [userId]
+        );
 
         console.log("[*] User Devices Info fetched ", devices);
 
@@ -953,6 +1074,8 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
             devices: devices
         })
     }
+
+
     catch (error) {
 
         console.log(`[*] Error in fetching User Devices ${error.message || error} `)
