@@ -22,7 +22,8 @@ const fakeServerHeaders = require("../middlewares/spoofHeaders");
 const redisClient = require("../redis/redisClient");
 
 // Utilities
-const deviceParser = require("../utils/deviceParser")
+const deviceParser = require("../utils/deviceParser");
+const geoLocationTracker = require("../utils/geoLocationTracker");
 
 // Main / Route is temporarily in Auth Routes
 const authRouter = require("../routes/authRouter"); // Auth routes
@@ -66,6 +67,15 @@ async function startServer() {
         // Home & Test Routes
 
         app.get("/", async (req, res) => {
+
+            // Temporarily used as a testing route for utilities/functions
+
+            // GeoIP Location Testing
+
+            const userLocation = await geoLocationTracker(req.ip)
+
+            console.log(`[*] Fetched User Location `,userLocation)
+            // User Agent Testing
 
             const userAgent = req.headers["user-agent"]; // User Device & Browser Details
             const deviceInfo = JSON.stringify(deviceParser(userAgent), null, 2)
