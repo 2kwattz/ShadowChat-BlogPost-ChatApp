@@ -15,7 +15,9 @@ const deviceParser = require("../utils/deviceParser"); // Device User Agent Pars
 const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
 const { formatName } = require("../utils/commonHelpers"); // Common Helper Functions
 
+// SQL Connection
 const { pool } = require("../db/conn");
+
 const authMiddleware = require("../middlewares/authMiddleware");
 
 // Disposable / Temp Mail Domains
@@ -584,10 +586,12 @@ router.post("/login", async function (req, res) {
                     error: "Username can only contain characters, numbers and underscores"
                 })
             }
-
         }
 
         // Verifying User from Database
+
+        // Required for SQL Transactions 
+        // const connection = await pool.getConnection();
 
         // Fake Hash to prevent enumeration attack via response timing
         const fakeHash = "$2b$10$KbQiM6TA6L/2esL8hWT8EOV9V7sXxJ0L0K9lK1w2r0kM7rj8yP6yS";
@@ -670,7 +674,6 @@ router.post("/login", async function (req, res) {
 
         req.bruteforceKey = key;
 
-
         console.log("[*] User Id /Login Route ", userId)
 
         const isPasswordCorrect = await bcrypt.compare(
@@ -725,7 +728,6 @@ router.post("/login", async function (req, res) {
         const userAgent = req.headers['user-agent'];
 
         // Parsing User Agent
-
         const deviceInfoParsed = deviceParser(userAgent);
 
         const browser = deviceInfoParsed?.browser?.name ?? null;
@@ -750,8 +752,6 @@ router.post("/login", async function (req, res) {
         console.log("[*] OS Architecture:", osArchitecture);
         console.log("[*] IP Address: ", ipAddress);
         console.log("[*] Device Type : ", deviceType)
-
-
 
         const [results] = await pool.execute(`
 
