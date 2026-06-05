@@ -517,11 +517,11 @@ ON DUPLICATE KEY UPDATE
         console.error(`[*] Error in registering user ${error.message || error}`);
 
         // Rolling back transcation 
-        try{
+        try {
 
             await conn.rollback();
         }
-        catch(error){
+        catch (error) {
             console.log("Error rolling back /REGISTER")
         }
 
@@ -854,7 +854,7 @@ router.post("/login", async function (req, res) {
         const deviceId = deviceResult.insertId;
 
         console.log(deviceResult);
-console.log("Device ID =", deviceResult.insertId);
+        console.log("Device ID =", deviceResult.insertId);
 
         // Creating User Device Mapping
         await conn.execute(`
