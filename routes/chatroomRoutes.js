@@ -87,6 +87,7 @@ router.get("/:roomUUID", async function(req,res) {
 
     try{
         const roomUUID = req.params.roomUUID;
+        console.log("[*] Loaded Chatroom ",roomUUID)
     }
     catch(error){
         

@@ -8,6 +8,7 @@ const xss = require("xss"); // Cross Site Scripting Prevention
 const hpp = require("hpp"); // HTTP Parameter Pollution Protection
 const http = require("http"); // Inbuilt Http Server
 const { Server } = require("socket.io"); // Socket.io Web Socket Server
+const multer = require("multer"); // File Handling Library
 const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Express Bridge
 const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
 
@@ -68,8 +69,17 @@ async function startServer() {
         app.use(hpp()); // Prevents HTTP Parameter Pollution
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
 
-        // Home & Test Routes
+        // Multer File Storage Configuration
 
+        // Disk storage in Project/Uploads folder
+        const diskStorage = multer.diskStorage({
+            destination: "uploads/",
+        })
+
+        // Memory Storage buffer
+        const memoryStorage = multer.memoryStorage()
+
+        // Home & Test Routes
         app.get("/", async (req, res) => {
 
             try {

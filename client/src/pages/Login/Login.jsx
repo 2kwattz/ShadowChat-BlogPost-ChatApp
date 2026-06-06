@@ -16,14 +16,14 @@ function Login() {
   const { refreshUser } = useAuth();
 
   console.log("ALL LOCAL STORAGE");
-console.log(localStorage);
+  console.log(localStorage);
 
   const getDeviceId = () => {
 
     // Fetching device id from localStorage
     let deviceId = localStorage.getItem("deviceId");
 
-    if(!deviceId){
+    if (!deviceId) {
 
       // Generating a Device UUID to uniquely identify a device for device tracking
       deviceId = crypto.randomUUID();
@@ -51,10 +51,10 @@ console.log(localStorage);
     const deviceId = getDeviceId()
 
     try {
-      const response = await userLogin({ identifier, password,deviceId })
+      const response = await userLogin({ identifier, password, deviceId })
       console.log("Login Response ", response);
       await refreshUser();
-      console.log("Response User ",response);
+      console.log("Response User ", response);
       console.log("[LOGIN] Device UUID:", deviceId);
       navigate("/dashboard");
 
