@@ -11,9 +11,9 @@ function Navbar(){
             <div className={styles.navbarWrapper}>
                 <div className={styles.logoWrapper}>
                     <img src={Logo} style={{height:"60px",width:"170px"}}/>
-
-                    
                 </div>
+
+                <div className={styles.searchbar}></div>
             </div>
     )
 }
