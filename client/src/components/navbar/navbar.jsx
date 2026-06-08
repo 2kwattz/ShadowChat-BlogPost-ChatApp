@@ -10,10 +10,11 @@ function Navbar(){
     return (
             <div className={styles.navbarWrapper}>
                 <div className={styles.logoWrapper}>
-                    <img src={Logo} style={{height:"60px",width:"170px"}}/>
+                    <img src={Logo} style={{height:"50px",width:"140px"}}/>
                 </div>
 
-                <div className={styles.searchbar}></div>
+                <div className={styles.searchbar}>
+                </div>
             </div>
     )
 }

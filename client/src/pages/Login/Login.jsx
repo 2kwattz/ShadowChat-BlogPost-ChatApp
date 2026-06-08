@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { userLogin } from "../../services/api";
@@ -18,10 +18,19 @@ function Login() {
   console.log("ALL LOCAL STORAGE");
   console.log(localStorage);
 
+  // Test Checking device id 
+
+  useEffect(()=>{
+
+    const id = getDeviceId()
+    console.log("Device Id from local storage", id)
+  })
+
   const getDeviceId = () => {
 
     // Fetching device id from localStorage
     let deviceId = localStorage.getItem("deviceId");
+
 
     if (!deviceId) {
 
