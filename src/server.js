@@ -31,6 +31,7 @@ const geoLocationTracker = require("../utils/geoLocationTracker");
 // Main '/' Route is temporarily in Auth Routes
 const authRouter = require("../routes/authRouter"); // Auth routes
 const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
+const communityRouter = require("../routes/communityRouter")
 
 // Enviornment Variables
 require("dotenv").config(); // DOT ENV Declaration
@@ -124,6 +125,7 @@ async function startServer() {
 
         app.use("/auth", authRouter); // Authentication routes
         app.use("/room", chatroomRouter); // Chatroom routes
+        app.use("/community", communityRouter); // Community Router
         app.set("trust proxy", false);
 
         // XSS Sanitization Eg
