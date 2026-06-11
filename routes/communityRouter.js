@@ -38,6 +38,13 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         cleanedBodyData.cDescription = cleanedBodyData.cDescription?.trim() || "";
         cleanedBodyData.cIcon = req.file?.path || null;
         cleanedBodyData.cSlug = cleanedBodyData.cSlug?.trim() || "";
+        cleanedBodyData.cRules = cleanedBodyData.cRules?.trim() || "";
+
+        // User Id from Request Header
+        const userId = req.user.id;
+
+        // Regex to validate slug
+        const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
 
         // Normalized Community Name
         const normalizedCommunitySlug = cleanedBodyData.cSlug.trim().toLowerCase();
@@ -51,6 +58,25 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
                 message: "Community slug is required"
             });
         }
+
+        if(!slugTestRegex.test(cleanedBodyData.cSlug)){
+              return res.status(400).json({
+                status: false,
+                message: "Community slug can only contain numbers, underscores and alphabets. Slug cannot start with number or underscore"
+            });
+        }
+
+        // Validating Slug's uniqueness
+
+        const [existingCommunitySlug] = await pool.query("SELECT community_id FROM communities WHERE community_slug =  ?",[cleanedBodyData.cSlug]);
+
+        if(existingCommunitySlug.length > 0){
+            return res.status(400).json({
+                status: false,
+                message: "Community slug already exists. Please use a different slug"
+            })
+        }
+
 
         // Validating Name
         if (!cleanedBodyData.cName) {
@@ -74,7 +100,11 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
                 status: false,
                 message: "Community rules are required"
             });
-        }
+        };
+
+        // Registering Community
+
+        
 
     }
     catch (error) {
