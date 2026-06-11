@@ -104,7 +104,9 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Registering Community
 
-        
+        // const [insertCommunity] = await pool.query(" INSERT INTO communities (community_name,normalizedCommunitySlug,community,_icon_url,community_rules,community_slug,normalized_slug,community_admin_id,community_description")
+
+
 
     }
     catch (error) {
