@@ -43,6 +43,20 @@ router.post("/create", upload.single("cIcon"), async function (req, res) {
             });
         }
 
+        if (!cleanedBodyData.cDescription) {
+            return res.status(400).json({
+                status: false,
+                message: "Community description is required"
+            });
+        }
+
+        if (!cleanedBodyData.cRules) {
+            return res.status(400).json({
+                status: false,
+                message: "Community rules are required"
+            });
+        }
+
     }
     catch (error) {
         res.status(500).json({
