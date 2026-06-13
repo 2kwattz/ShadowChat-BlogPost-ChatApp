@@ -48,13 +48,13 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         // User Id from Request Header
         const userId = req.user.id;
 
-        
+
         // Member Count : 1 => Because an admin is the first member
-        
+
         const member_count = 1;
-        
+
         // Validations
-        
+
         // Validating Slug/ Subcommunity
         if (!cleanedBodyData.cSlug) {
             return res.status(400).json({
@@ -68,7 +68,7 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Normalized Community Name
         const normalizedCommunitySlug = cleanedBodyData.cSlug.trim().toLowerCase();
-        
+
         if (!slugTestRegex.test(cleanedBodyData.cSlug)) {
             return res.status(400).json({
                 status: false,
@@ -128,9 +128,9 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         community_admin_id,
         community_description,
         member_count
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `,
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `,
             [
                 cleanedBodyData.cName,
                 cleanedBodyData.cIcon,
@@ -143,6 +143,9 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
             ]
         );
 
+        if (insertCommunity.affectedRows !== 1) {
+            throw new Error("Community insert failed");
+        }
         const communityId = insertCommunity.insertId;
         const role = "admin"; // Since only admin can create a group
 
@@ -154,6 +157,11 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
             communityId,
             role
         ])
+
+        if (community_user_membership.affectedRows !== 1) {
+            throw new Error("Membership insert failed");
+        }
+
         await connection.commit(); // SQL Transaction Completed
 
         return res.status(201).json({
@@ -177,18 +185,69 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         })
     }
 
-     finally {
+    finally {
 
-    connection.release();
+        connection.release();
 
-}
+    }
 })
 
+// List All Communities
 
+router.get("/all", async function (req, res) {
 
+    try {
+        console.log("[*] Listing all communities");
 
+        // Quering Page
 
+        const page = parseInt(req.query.page) || 1;
 
+        // Capping the limit to 50 
+        const limit = Math.min(
+            Math.max(parseInt(req.query.limit) || 20, 1),
+            50
+        );
+        const offset = (page - 1) * limit;
+
+        // Fetching Communities
+
+        const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM communities`);
+
+        const totalCommunities = countRows[0].total;
+
+        console.log("[*] Total Communities Count ", totalCommunities);
+
+        // Fetching communitites from database
+
+        const [communities] = await pool.query(`SELECT * FROM communities ORDER BY community_id DESC LIMIT ? OFFSET ?`, [limit, offset]);
+
+        // Calculating Total Pages
+
+        const totalPages = Math.ceil(totalCommunities / limit);
+
+        res.status(200).json({
+            status: true,
+            page,
+            limit,
+            totalCommunities,
+            totalPages,
+            data: communities
+        })
+
+    }
+    catch (error) {
+
+        res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
+
+    }
+
+})
+
+// View Specific Community
 
 
 module.exports = router;
