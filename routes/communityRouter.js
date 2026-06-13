@@ -49,6 +49,10 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         // Normalized Community Name
         const normalizedCommunitySlug = cleanedBodyData.cSlug.trim().toLowerCase();
 
+        // Member Count : 1 => Because an admin is the first member
+
+        const member_count = 1;
+
         // Validations
 
         // Validating Slug/ Subcommunity
@@ -68,7 +72,7 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Validating Slug's uniqueness
 
-        const [existingCommunitySlug] = await pool.query("SELECT community_id FROM communities WHERE community_slug =  ?",[cleanedBodyData.cSlug]);
+        const [existingCommunitySlug] = await pool.query("SELECT community_id FROM communities WHERE normalized_slug =  ?",[cleanedBodyData.cSlug]);
 
         if(existingCommunitySlug.length > 0){
             return res.status(400).json({
@@ -104,7 +108,7 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Registering Community
 
-        // const [insertCommunity] = await pool.query(" INSERT INTO communities (community_name,normalizedCommunitySlug,community,_icon_url,community_rules,community_slug,normalized_slug,community_admin_id,community_description")
+        const [insertCommunity] = await pool.query(" INSERT INTO communities (community_name,normalizedCommunitySlug,community,_icon_url,community_rules,community_slug,normalized_slug,community_admin_id,community_description,member_count")
 
 
 
