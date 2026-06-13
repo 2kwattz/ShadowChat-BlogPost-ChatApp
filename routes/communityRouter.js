@@ -28,9 +28,14 @@ const { pool } = require("../db/conn");
 // Community Routes
 
 router.post("/create", authMiddleware, upload.single("cIcon"), async function (req, res) {
+
+    const connection = await pool.getConnection(); // Required for SQL Transaction
+
     try {
         console.log("[*] Inside Create Community Route");
 
+
+        // Cleaned Body Request
         const cleanedBodyData = cleanXSS(req.body);
 
         // Formatting Community Name
@@ -43,18 +48,13 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         // User Id from Request Header
         const userId = req.user.id;
 
-        // Regex to validate slug
-        const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
-
-        // Normalized Community Name
-        const normalizedCommunitySlug = cleanedBodyData.cSlug.trim().toLowerCase();
-
+        
         // Member Count : 1 => Because an admin is the first member
-
+        
         const member_count = 1;
-
+        
         // Validations
-
+        
         // Validating Slug/ Subcommunity
         if (!cleanedBodyData.cSlug) {
             return res.status(400).json({
@@ -63,8 +63,14 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
             });
         }
 
-        if(!slugTestRegex.test(cleanedBodyData.cSlug)){
-              return res.status(400).json({
+        // Regex to validate slug
+        const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
+
+        // Normalized Community Name
+        const normalizedCommunitySlug = cleanedBodyData.cSlug.trim().toLowerCase();
+        
+        if (!slugTestRegex.test(cleanedBodyData.cSlug)) {
+            return res.status(400).json({
                 status: false,
                 message: "Community slug can only contain numbers, underscores and alphabets. Slug cannot start with number or underscore"
             });
@@ -72,9 +78,9 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Validating Slug's uniqueness
 
-        const [existingCommunitySlug] = await pool.query("SELECT community_id FROM communities WHERE normalized_slug =  ?",[cleanedBodyData.cSlug]);
+        const [existingCommunitySlug] = await connection.query("SELECT community_id FROM communities WHERE normalized_slug =  ?", [normalizedCommunitySlug]);
 
-        if(existingCommunitySlug.length > 0){
+        if (existingCommunitySlug.length > 0) {
             return res.status(400).json({
                 status: false,
                 message: "Community slug already exists. Please use a different slug"
@@ -108,17 +114,74 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         // Registering Community
 
-        const [insertCommunity] = await pool.query(" INSERT INTO communities (community_name,normalizedCommunitySlug,community,_icon_url,community_rules,community_slug,normalized_slug,community_admin_id,community_description,member_count")
+        await connection.beginTransaction(); // Starting Transaction
+
+        const [insertCommunity] = await connection.query(
+            `
+    INSERT INTO communities
+    (
+        community_name,
+        community_icon_url,
+        community_rules,
+        community_slug,
+        normalized_slug,
+        community_admin_id,
+        community_description,
+        member_count
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+            [
+                cleanedBodyData.cName,
+                cleanedBodyData.cIcon,
+                cleanedBodyData.cRules,
+                cleanedBodyData.cSlug,
+                normalizedCommunitySlug,
+                userId,
+                cleanedBodyData.cDescription,
+                member_count
+            ]
+        );
+
+        const communityId = insertCommunity.insertId;
+        const role = "admin"; // Since only admin can create a group
+
+        // Inserting User Id and Community Id in Junction Table
+
+        const [community_user_membership] = await connection.query(`INSERT INTO community_members (user_id,community_id,role)
+            VALUES(?,?,?)`, [
+            userId,
+            communityId,
+            role
+        ])
+        await connection.commit(); // SQL Transaction Completed
+
+        return res.status(201).json({
+            status: true,
+            message: "Community created successfully",
+            communityId,
+            communitySlug: cleanedBodyData.cSlug
+        });
+
 
 
 
     }
     catch (error) {
+
+        await connection.rollback();
+
         res.status(500).json({
             status: false,
             message: "Internal Server Error"
         })
     }
+
+     finally {
+
+    connection.release();
+
+}
 })
 
 
