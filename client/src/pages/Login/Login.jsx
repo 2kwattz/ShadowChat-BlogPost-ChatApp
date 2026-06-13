@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./login.css";
 import { userLogin } from "../../services/api";
 import { useAuth } from "../../context/authContext";
+import Navbar from "../../components/navbar/navbar"
 
 
 function Login() {
@@ -77,13 +78,18 @@ function Login() {
 
 
   return (
+<React.Fragment>
+
+  <Navbar></Navbar>
+
+  
 
     <div className="login-container">
 
       <form
         className="login-form"
         onSubmit={handleLogin}
-      >
+        >
 
         <h1>Login</h1>
 
@@ -94,7 +100,7 @@ function Login() {
           onChange={(e) =>
             setIdentifier(e.target.value)
           }
-        />
+          />
 
         <input
           type="password"
@@ -103,7 +109,7 @@ function Login() {
           onChange={(e) =>
             setPassword(e.target.value)
           }
-        />
+          />
 
         <button type="submit">
           Login
@@ -112,6 +118,7 @@ function Login() {
       </form>
 
     </div>
+          </React.Fragment>
   );
 }
 

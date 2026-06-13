@@ -3,7 +3,7 @@ import React, { useState,useEffect } from "react";
 function Searchbar(){
     return(
 <React.Fragment>
-    <input>
+    <input placeholder={placeholder}>
     </input>
 </React.Fragment>
     )
