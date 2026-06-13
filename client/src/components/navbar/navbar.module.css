@@ -32,11 +32,11 @@
 
 .navbarSearch{
     background-color: rgba(255,255,255,0.04);
-    padding: 10px 120px;
+    padding: 10px 160px;
     padding-left: 20px;
     border-radius: 40px;
     border-color: var(--border-primary-dark);
-    color: var(--text-white-1)
+    color: var(--text-white-3)
 }
 
 .navbarSearch:focus{
@@ -59,8 +59,14 @@ justify-content: center;
 
 
 .navlinks{
-    color: var(--text-white-1);
+    color: var(--text-white-3);
     padding-right: 30px;
+    cursor: pointer;
+}
+
+.navlinks:hover{
+    color: aliceblue;
+    transition: all 0.18s;
 }
 /* Buttons */
 
@@ -71,10 +77,6 @@ justify-content: center;
     gap:20px;
 }
 
-.transparentButton{
-    background-color: var(--border-primary-dark);
-    color: var(--text-white-1);
-    outline: none;
-    border-color: aliceblue;
-    border-width: 1px;
+.buttonsWrapper button{
+    cursor: pointer;
 }

@@ -2,7 +2,7 @@ import { useState } from "react";
 import "./chatroom.css";
 import { getChatrooms } from "../../services/api";
 
-function Chatroom() {
+function createChatroom() {
 
   // States
   const [identifier, setIdentifier] = useState("");
@@ -74,4 +74,4 @@ function Chatroom() {
   );
 }
 
-export default Chatroom;
+export default createChatroom;

@@ -87,7 +87,7 @@ export const fetchUserDevices = async(data) => {
 
 // All Chatrooms
 
-export const listChatrooms = async(data) => {
+export const getChatrooms = async(data) => {
     try{
         const response = await networkClient.get(
             `/room/all`);
@@ -97,8 +97,24 @@ export const listChatrooms = async(data) => {
         return response.data
     }
     catch(error){
-        console.error(`Error in calling User Registration API ${error}`)
+        console.error(`Error in calling Get Chatroom API ${error}`)
         throw error;
+    }
+}
+
+// Fetch All Communities
+
+export const getCommunities = async(data)=>{
+    try{
+        const response = await networkClient.get(`/community/all`);
+
+        console.log("Get List Communities Data ",response.data)
+        return response.data;
+
+    }
+
+    catch(error){
+        console.error(`Error in calling Get Communities API ${error}`)
     }
 }
 

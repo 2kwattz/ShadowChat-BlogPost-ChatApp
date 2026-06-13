@@ -45,6 +45,9 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         cleanedBodyData.cSlug = cleanedBodyData.cSlug?.trim() || "";
         cleanedBodyData.cRules = cleanedBodyData.cRules?.trim() || "";
 
+        console.log("[*] Community Slug Value ",cleanedBodyData.cSlug);
+        console.log("[*] Community Name Value ",cleanedBodyData.cName);
+
         // User Id from Request Header
         const userId = req.user.id;
 

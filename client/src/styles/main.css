@@ -15,6 +15,7 @@
     --bg-navbar: rgba(6,8,16,0.80);
 
     --border-primary-dark: rgba(255,255,255,0.055);
+    --border-secondary-dark: rgba(167,139,250,0.30);
 
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
@@ -29,18 +30,18 @@
     --cyan-tertiary: #a5f3fc;
 
     --cyan-dark-primary: #0891b2;
-    --cyan-glow-primary: #rgba(34, 211, 238, 0.20);
+    --cyan-glow-primary: rgba(34, 211, 238, 0.20);
     --cyan-glow-secondary: #rgba(34, 211, 238, 0.08);
-    --cyan-border: #rgba(34, 211, 238, 0.30);
+    --cyan-border: rgba(34, 211, 238, 0.30);
 
     --lightpurple-primary: #a78bfa;
     --lightpurple-secondary: #c4b5fd;
     --lightpurple-tertiary: #ede9fe;
 
     --purple-primary: #7c3aed;
-    --purple-glow-primary: #rgba(167, 139, 250, 0.20);
-    --purple-glow-secondary: #rgba(167, 139, 250, 0.08);
-    --purple-border-primary: #rgba(167, 139, 250, 0.30);
+    --purple-glow-primary: rgba(167, 139, 250, 0.20);
+    --purple-glow-secondary: rgba(167, 139, 250, 0.08);
+    --purple-border-primary: rgba(167, 139, 250, 0.30);
 
     --text-white-1: #f0f4ff;
     --text-white-2: #b8c8e8;
@@ -52,7 +53,7 @@
     --amber-primary: #f59e0b;
     --amber-secondary: #fbbf24;
     --amber-tertiary: #fde68a;
-    --amber-dark: #b45309;
+    --amber-dark: b45309;
     --amber-glow: rgba(245, 158, 11, 0.20);
     --amber-glow2: rgba(245, 158, 11, 0.09);
     --amber-border: rgba(245, 158, 11, 0.32);
@@ -66,4 +67,43 @@
 
 html{
     scroll-behavior:smooth
+}
+
+
+/* Buttons */
+
+.transparentButton{
+    background-color: transparent;
+    color: var(--text-white-1);
+    outline: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    
+    border-width: 1px;
+    padding: 7px 20px;
+    border-radius: 40px;
+}
+
+.purpleGradientButton{
+    background: linear-gradient(135deg,var(--purple-primary),var(--lightpurple-primary));
+    box-shadow: 0 4px 22px rgba(167,139,250,0.35);
+    padding: 7px 20px;
+    border-radius: 40px;
+    border-width: 0px;
+    color: var(--text-white-1);
+
+}
+
+.purpleGradientButton:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(167, 139, 250, 0.48);
+    transition: all 0.18s;
+}
+
+.transparentButton:hover{
+    border-color: var(--border-secondary-dark);
+    color: var(--lightpurple-secondary);
+    transition: all 0.18s;
+
+
 }
