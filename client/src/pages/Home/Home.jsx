@@ -13,9 +13,13 @@ import { getCommunities } from "../../services/api";
 
 function Home() {
 
+  const [communityList,setCommunityList] = useState([])
+
   useEffect(()=>{
-    const response = getCommunities();
-    console.log("API RESPONSE")
+    const response = await getCommunities();
+    setCommunityList(response);
+
+    console.log("API RESPONSE", response)
   })
 
 
@@ -30,8 +34,18 @@ function Home() {
   <div className={styles.heroLeft}>
     <h1 className="boldTitle">Where <span className="yellowPrimaryGradient">bold ideas</span> <br></br>find their <span className="purplePrimaryGradient">people</span> </h1>
     <p className={styles.description}>Ask anything. Spark debates. Join live chatrooms. Discover communities built around how you actually think</p>
+
+    {/* Chatroom and Communities Button Wrapper */}
+
+    <div className="buttonsWrapper"></div>
   </div>
  
+</section>
+
+{/* Chatroom List Test */}
+
+<section>
+
 </section>
 
     </React.Fragment>

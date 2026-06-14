@@ -4,12 +4,6 @@ import { getChatrooms } from "../../services/api";
 
 function createChatroom() {
 
-  // States
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
-
-
-
   // Login Function
   const handleLogin = async (e) => {
 
