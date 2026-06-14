@@ -216,7 +216,7 @@ router.get("/all", async function (req, res) {
         // Fetching Communities
 
         const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM communities`);
-
+        
         const totalCommunities = countRows[0].total;
 
         console.log("[*] Total Communities Count ", totalCommunities);

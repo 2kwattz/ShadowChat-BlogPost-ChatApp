@@ -26,6 +26,7 @@ function Navbar(){
 
                 <div className={styles.rightWrapper}>
                     <ul className={styles.navlinksList}>
+                        <li className={styles.navlinks}>Home</li>
                         <li className={styles.navlinks}>Communities</li>
                         <li className={styles.navlinks}>Chatroom</li>
                         <li className={styles.navlinks}>About</li>
