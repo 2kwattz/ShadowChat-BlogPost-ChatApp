@@ -4,6 +4,7 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
 /* ROOT COLORS */
@@ -69,6 +70,21 @@ html{
     scroll-behavior:smooth
 }
 
+
+/* Headings */
+
+.boldTitle{
+    color: var(--text-white-1);
+    font-weight: 700;
+
+}
+
+.yellowPrimaryGradient{
+    background: linear-gradient(135deg,var(--amber-primary) 0%,var(--amber-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+}
 
 /* Buttons */
 

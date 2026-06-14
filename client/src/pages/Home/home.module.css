@@ -1,3 +1,26 @@
 .heroCover{
-    color: aliceblue;
+    background-image: url("../../assets/cover.png");
+    background-position: center;
+    height: 600px;
+}
+
+.heroLeft{
+    width: 49%;
+    text-align: left;
+    display: flex;
+    align-items: left;
+    justify-content: center;
+    height: 80%;
+    flex-direction: column;
+    font-size: 1.5rem;
+    padding: 0px 30px;
+    padding-left: 50px;
+    text-align: left;
+}
+.description{
+    color: var(--text-white-3);
+    font-size: 1rem;
+    margin-top: 30px;
+    margin-right: 50px;
+    text-align: left;
 }
