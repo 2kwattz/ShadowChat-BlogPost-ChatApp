@@ -13,10 +13,10 @@
     --bg-dark-primary: #060810;
     --bg-dark-secondary: #090c17;
 
-    --bg-navbar: rgba(6,8,16,0.80);
+    --bg-navbar: rgba(6, 8, 16, 0.80);
 
-    --border-primary-dark: rgba(255,255,255,0.055);
-    --border-secondary-dark: rgba(167,139,250,0.30);
+    --border-primary-dark: rgba(255, 255, 255, 0.055);
+    --border-secondary-dark: rgba(167, 139, 250, 0.30);
 
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
@@ -66,21 +66,21 @@
 
 /* ROOT HTML */
 
-html{
-    scroll-behavior:smooth
+html {
+    scroll-behavior: smooth
 }
 
 
 /* Headings */
 
-.boldTitle{
+.boldTitle {
     color: var(--text-white-1);
     font-weight: 700;
 
 }
 
-.yellowPrimaryGradient{
-    background: linear-gradient(135deg,var(--amber-primary) 0%,var(--amber-secondary) 100%);
+.yellowPrimaryGradient {
+    background: linear-gradient(135deg, var(--amber-primary) 0%, var(--amber-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 
@@ -88,25 +88,24 @@ html{
 
 /* Buttons */
 
-.transparentButton{
+.transparentButton {
     background-color: transparent;
     color: var(--text-white-1);
     outline: none;
-    border: 1px solid rgba(255,255,255,0.1);
-    
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
     border-width: 1px;
     padding: 7px 20px;
     border-radius: 40px;
 }
 
-.purpleGradientButton{
-    background: linear-gradient(135deg,var(--purple-primary),var(--lightpurple-primary));
-    box-shadow: 0 4px 22px rgba(167,139,250,0.35);
+.purpleGradientButton {
+    background: linear-gradient(135deg, var(--purple-primary), var(--lightpurple-primary));
+    box-shadow: 0 4px 22px rgba(167, 139, 250, 0.35);
     padding: 7px 20px;
     border-radius: 40px;
     border-width: 0px;
     color: var(--text-white-1);
-
 }
 
 .purpleGradientButton:hover {
@@ -116,10 +115,43 @@ html{
     transition: all 0.18s;
 }
 
-.transparentButton:hover{
+.transparentButton:hover {
     border-color: var(--border-secondary-dark);
     color: var(--lightpurple-secondary);
     transition: all 0.18s;
+}
 
+.cyanButton {
+    background-color: var(--cyan-primary);
+    box-shadow: 0 6px 28px rgba(34, 211, 238, 0.32);
+    border: unset;
+    padding: 13px 20px;
+    transition: all 0.22s;
+    border-radius: 80px;
+    color: var(--text-white-1);
+    font-weight: 700;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
 
+}
+
+.greyButton {
+    background-color: rgba(255,255,255,0.05);
+    color: var(--text-white-2);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+    padding: 13px 26px;
+    border-radius: 80px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+}
+
+.greyButton:hover{
+background-color: rgba(255,255,255,0.08);
+color: var(--cyan-secondary);
 }

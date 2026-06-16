@@ -16,10 +16,8 @@ function Home() {
   const [communityList,setCommunityList] = useState([])
 
   useEffect(()=>{
-    const response = await getCommunities();
-    setCommunityList(response);
-
-    console.log("API RESPONSE", response)
+    const response = getCommunities();
+    console.log("API RESPONSE")
   })
 
 
@@ -37,7 +35,18 @@ function Home() {
 
     {/* Chatroom and Communities Button Wrapper */}
 
-    <div className="buttonsWrapper"></div>
+    <div className={styles.buttonsWrapper}>
+    <button className="cyanButton">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+      Explore the feed</button>
+      
+    <button className="greyButton">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      Join a Chatroom
+      </button>
+
+    </div>
+
   </div>
  
 </section>
