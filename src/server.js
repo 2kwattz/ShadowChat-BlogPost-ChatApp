@@ -13,6 +13,9 @@ const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Ex
 const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
 const morgan = require("morgan"); // Requests Logger
 const winston = require("winston"); // Overall Logger
+const swaggerUi = require("swagger-ui-express"); // Swagger UI
+const swaggerSpec = require("../config/swagger"); // Swagger Configuration
+
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware"); // General Error Middleware
@@ -70,6 +73,7 @@ async function startServer() {
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
+        app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware
 
         // Multer File Storage Configuration
 
