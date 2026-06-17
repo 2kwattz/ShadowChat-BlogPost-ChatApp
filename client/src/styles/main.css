@@ -21,6 +21,7 @@
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
     --surface-tertiary: #141a2e;
+    --surface-light: rgba(255,255,255,0.045);
 
     --darkpink-primary: #201025;
     --darkpurple-primary: #141025;
@@ -83,6 +84,7 @@ html {
     background: linear-gradient(135deg, var(--amber-primary) 0%, var(--amber-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    
 
 }
 

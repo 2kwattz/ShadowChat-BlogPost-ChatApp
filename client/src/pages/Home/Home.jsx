@@ -49,52 +49,53 @@ function Home() {
 
           {/* Stats */}
 
-          <div className="statsContainer">
+          <div className={styles.statsContainer}>
 
-            <div className="statsItem">
+            {/*  */}
+            <div className={styles.statsItem}>
 
-              <div className="statsItemTitle">
-                <h4>PLATFORMS</h4>
+              <div className={styles.statsItemTitle}>
+                <h4>04</h4>
               </div>
 
-              <div className="statsItemDescription">
+              <div className={styles.statsItemDescription}>
+                PLATFORMS
+              </div>
 
+            </div>
+            {/*  */}
+
+            <div className={styles.statsItem}>
+
+              <div className={styles.statsItemTitle}>
+                <h4>24x7</h4>
+              </div>
+
+              <div className={styles.statsItemDescription}>
+                <p>LIVE ACCESS</p>
               </div>
 
             </div>
 
-            <div className="statsItem">
+            <div className={styles.statsItem}>
 
-              <div className="statsItemTitle">
-                <h4>PLATFORMS</h4>
+              <div className={styles.statsItemTitle}>
+                <h4>100%</h4>
               </div>
 
-              <div className="statsItemDescription">
-                <h4>LIVE ACCESS</h4>
-              </div>
-
-            </div>
-
-            <div className="statsItem">
-
-              <div className="statsItemTitle">
-
-              </div>
-
-              <div className="statsItemDescription">
-                <h4>PRIVACY FOCUSED</h4>
-
+              <div className={styles.statsItemDescription}>
+                <p>PRIVACY FOCUSED</p>
               </div>
 
             </div>
 
-            <div className="statsItem">
-              <div className="statsItemTitle">
-
+            <div className={styles.statsItem}>
+              <div className={styles.statsItemTitle}>
+                <h4>∞</h4>
               </div>
 
-              <div className="statsItemDescription">
-
+              <div className={styles.statsItemDescription}>
+                <p>CONVERSATIONS</p>
               </div>
 
             </div>
@@ -104,6 +105,19 @@ function Home() {
 
       </section>
 
+      {/* Trending Bar */}
+
+      <div className={styles.trendingBar}>
+        <p>🔥 Trending</p><div className={styles.trendingTags}>
+          <p>#ArtificialIntelligence</p>
+          <p>#Gaming</p>
+          <p>#SpaceExploration</p>
+          <p>#WebDev</p>
+          <p>#IndianGeopolitics</p>
+          <p>#OpSindoor</p>
+          <p>#Photography</p>
+        </div>
+      </div>
       {/* Chatroom List Test */}
 
       <section>

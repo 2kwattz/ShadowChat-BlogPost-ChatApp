@@ -45,8 +45,8 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
         cleanedBodyData.cSlug = cleanedBodyData.cSlug?.trim() || "";
         cleanedBodyData.cRules = cleanedBodyData.cRules?.trim() || "";
 
-        console.log("[*] Community Slug Value ",cleanedBodyData.cSlug);
-        console.log("[*] Community Name Value ",cleanedBodyData.cName);
+        console.log("[*] Community Slug Value ", cleanedBodyData.cSlug);
+        console.log("[*] Community Name Value ", cleanedBodyData.cName);
 
         // User Id from Request Header
         const userId = req.user.id;
@@ -216,7 +216,7 @@ router.get("/all", async function (req, res) {
         // Fetching Communities
 
         const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM communities`);
-        
+
         const totalCommunities = countRows[0].total;
 
         console.log("[*] Total Communities Count ", totalCommunities);
