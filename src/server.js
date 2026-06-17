@@ -11,7 +11,8 @@ const { Server } = require("socket.io"); // Socket.io Web Socket Server
 const multer = require("multer"); // File Handling Library
 const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Express Bridge
 const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
-const morgan = require("morgan"); // Logger
+const morgan = require("morgan"); // Requests Logger
+const winston = require("winston"); // Overall Logger
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware"); // General Error Middleware
@@ -68,7 +69,6 @@ async function startServer() {
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
-        app.use(morgan("dev")); // Requests Logger
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
 
         // Multer File Storage Configuration
@@ -80,6 +80,33 @@ async function startServer() {
 
         // Memory Storage buffer
         const memoryStorage = multer.memoryStorage()
+
+        // Winston Logger Configuration
+
+        const logger = winston.createLogger({
+            level: "http",
+
+            format: winston.format.combine(
+                winston.format.timestamp(),
+                winston.format.printf(
+                    ({ timestamp, level, message }) =>
+                        `${timestamp} [${level.toUpperCase()}] ${message}`
+                )
+            ),
+
+            transports: [
+                new winston.transports.Console()
+            ]
+        });
+        // Morgan Integration in Winston Logger
+
+        app.use(
+            morgan("combined", {
+                stream: {
+                    write: (message) => logger.http(message.trim())
+                }
+            })
+        );
 
         // Home & Test Routes
         app.get("/", async (req, res) => {
@@ -104,16 +131,16 @@ async function startServer() {
                     message: "Home Route Working"
                 })
             }
-            catch(error){
-                console.error("[*] Error in / Node Route ",error || error.message);
+            catch (error) {
+                console.error("[*] Error in / Node Route ", error || error.message);
 
                 res.status(500).json({
-                    status:false,
+                    status: false,
                     message: "Internal Server Error"
                 })
             }
 
-           
+
         })
 
         app.get("/errorTest", (req, res, next) => {
