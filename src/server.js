@@ -11,7 +11,7 @@ const { Server } = require("socket.io"); // Socket.io Web Socket Server
 const multer = require("multer"); // File Handling Library
 const { expressMiddleware } = require('@as-integrations/express5'); // Apollo Express Bridge
 const cookieParser = require("cookie-parser"); // To set JWT Token in cookies
-
+const morgan = require("morgan"); // Logger
 
 // Custom Middlewares
 const errorMiddleware = require("../middlewares/errorMiddleware"); // General Error Middleware
@@ -68,6 +68,7 @@ async function startServer() {
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
+        app.use(morgan("dev")); // Requests Logger
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
 
         // Multer File Storage Configuration
