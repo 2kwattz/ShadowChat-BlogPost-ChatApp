@@ -1135,6 +1135,10 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
 
         // Fetching User
         const userId = req.user.id;
+
+        // Updating Name in database
+        const query = `UPDATE users SET firstName = ? WHERE userId = ?`;
+        const [result] = await pool.execute(query,[formatName,userId]);
     }
     catch (error) {
         console.log("[*] Error while updating first name ", error?.message || error);
