@@ -34,6 +34,7 @@ const blockedDomains = [
 const allowedGenders = ["male", "female", "other"];
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
+const lettersOnlyValidationRegex = /^[A-Za-z]+$/
 
 
 // Validation Function
@@ -896,7 +897,7 @@ router.post("/login", async function (req, res) {
     }
 
     catch (error) {
-        console.log(`[*] Error in handling POST /api/login route ${error.message || error}`);
+        console.log(`[*] Error in handling POST /api/login route ${error?.message || error}`);
 
         // Rolling back Device Inventory Queries in Error Scenario
 
@@ -929,7 +930,7 @@ router.get("/me", authMiddleware, function (req, res) {
         })
     }
     catch (error) {
-        console.log(`[*] Error. Cannot Decode User ${error.message || error}`);
+        console.log(`[*] Error. Cannot Decode User ${error?.message || error}`);
         return res.status(500).json({
             status: false,
             message: "Internal Server Error"
@@ -1057,7 +1058,7 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
             ORDER BY ud.last_seen_at DESC
             `,
             [userId]
-            );
+        );
 
         console.log("[*] User Devices Info fetched ", devices);
 
@@ -1081,7 +1082,7 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
     catch (error) {
 
-        console.log(`[*] Error in fetching User Devices ${error.message || error} `)
+        console.log(`[*] Error in fetching User Devices ${error?.message || error} `)
 
         return res.status(500).json({
             status: false,
@@ -1094,39 +1095,55 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
 // CRUD Operations
 
-router.post("/updateFirstName", authMiddleware, async function (req,res) {
+router.post("/updateFirstName", authMiddleware, async function (req, res) {
 
-    try{
-        const firstName = cleanXSS(req.body.firstName);
+    try {
+        const firstName = cleanXSS(req.body.firstName)?.trim();
         console.log("[*] Fetched First Name", firstName);
-        const charactersOnlyValidationRegex = /^[A-Za-z]+$/
+        
 
-        if(!firstName){
+        if (!firstName) {
             return res.status(400).json({
                 status: false,
-                message: "Invalid first name"
+                message: "First name is required"
             })
         }
 
-        if(firstName.length < 2){
+
+        if (!lettersOnlyValidationRegex.test(firstName)) {
+            return res.status(400).json({
+                status: false,
+                message: "First name can only contain letters"
+            })
+        }
+
+        if (firstName.length < 2) {
             return res.status(400).json({
                 status: false,
                 message: "First name should be at least 2 characters. (We remember you Om) Are you a person or a variable?"
             })
         }
 
-        if(!charactersOnlyValidationRegex.test(firstName)){
-             return res.status(400).json({
+        if (firstName.length > 50) {
+            return res.status(400).json({
                 status: false,
-                message: "First name can only contain characters"
-            })
+                message: "First name cannot exceed 50 characters"
+            });
         }
 
+        const formattedName = formatName(firstName);
+
+        // Fetching User
+        const userId = req.user.id;
     }
-    catch(error){
-        console.log("[*] Error while updating first name");
+    catch (error) {
+        console.log("[*] Error while updating first name ", error?.message || error);
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
     }
-    
+
 })
 
 
