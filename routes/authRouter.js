@@ -1099,6 +1099,7 @@ router.post("/updateFirstName", authMiddleware, async function (req,res) {
     try{
         const firstName = cleanXSS(req.body.firstName);
         console.log("[*] Fetched First Name", firstName);
+        const charactersOnlyValidationRegex = /^[A-Za-z]+$/
 
         if(!firstName){
             return res.status(400).json({
@@ -1111,6 +1112,13 @@ router.post("/updateFirstName", authMiddleware, async function (req,res) {
             return res.status(400).json({
                 status: false,
                 message: "First name should be at least 2 characters. (We remember you Om) Are you a person or a variable?"
+            })
+        }
+
+        if(!charactersOnlyValidationRegex.test(firstName)){
+             return res.status(400).json({
+                status: false,
+                message: "First name can only contain characters"
             })
         }
 
