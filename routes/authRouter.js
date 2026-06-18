@@ -14,7 +14,7 @@ const welcomeTemplate = require("../templates/welcome")
 const sendEmail = require("../services/sendEmail"); // Email Service
 const deviceParser = require("../utils/deviceParser"); // Device User Agent Parsing
 const cleanXSS = require("../utils/xssCleaner"); // To prevent XSS Attacks 
-const { formatName,blockedEmailDomains,isDisposableEmail } = require("../utils/commonHelpers"); // Common Helper Functions
+const { formatName, blockedEmailDomains, isDisposableEmail } = require("../utils/commonHelpers"); // Common Helper Functions
 
 // SQL Connection
 const { pool } = require("../db/conn");
@@ -98,7 +98,7 @@ const validateData = (data) => {
 
     // Validating Email Format
 
-    const email = data.email.trim().toLowerCase();
+    const email = data?.email.trim().toLowerCase();
 
     if (!emailRegex.test(email)) {
 
@@ -108,7 +108,7 @@ const validateData = (data) => {
         }
     };
 
-    const emailDomain = email.split("@")[1]?.trim()?.toLowerCase();
+    const emailDomain = email?.split("@")[1]?.trim()?.toLowerCase();
 
     // Validating Domain Authenticity using Internal Data
     if (blockedEmailDomains.has(emailDomain)) {
@@ -118,7 +118,7 @@ const validateData = (data) => {
         }
     }
 
-    if(disposableDomains.includes(emailDomain)){
+    if (disposableDomains?.includes(emailDomain)) {
         return {
             status: false,
             error: "Temporary Email Addresses are not allowed"
@@ -1112,7 +1112,7 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
     try {
         const firstName = cleanXSS(req.body.firstName)?.trim();
         console.log("[*] Fetched First Name", firstName);
-        
+
 
         if (!firstName) {
             return res.status(400).json({
@@ -1150,7 +1150,14 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
 
         // Updating Name in database
         const query = `UPDATE users SET firstName = ? WHERE userId = ?`;
-        const [result] = await pool.execute(query,[formattedName,userId]);
+        const [result] = await pool.execute(query, [formattedName, userId]);
+
+         // Result 
+
+        return res.status(200).json({
+            status: true,
+            message: "First Name updated successfully"
+        });
     }
     catch (error) {
         console.log("[*] Error while updating first name ", error?.message || error);
@@ -1169,7 +1176,7 @@ router.post("/updateLastName", authMiddleware, async function (req, res) {
     try {
         const lastName = cleanXSS(req.body.lastName)?.trim();
         console.log("[*] Fetched Last Name", lastName);
-        
+
 
         if (!lastName) {
             return res.status(400).json({
@@ -1207,9 +1214,14 @@ router.post("/updateLastName", authMiddleware, async function (req, res) {
 
         // Updating Name in database
         const query = `UPDATE users SET lastName = ? WHERE userId = ?`;
-        const [result] = await pool.execute(query,[formattedName,userId]);
+        const [result] = await pool.execute(query, [formattedName, userId]);
 
         // Result 
+
+        return res.status(200).json({
+            status: true,
+            message: "Last Name updated successfully"
+        });
     }
     catch (error) {
         console.log("[*] Error while updating last name ", error?.message || error);
@@ -1226,10 +1238,14 @@ router.post("/updateLastName", authMiddleware, async function (req, res) {
 router.post("/updateEmail", authMiddleware, async function (req, res) {
 
     try {
-        const emailAddress = cleanXSS(req.body.emailAddress)?.trim().toLowerCase();
+        const emailAddress = cleanXSS(req.body.emailAddress)?.trim()?.toLowerCase();
+        const emailDomain = emailAddress?.split("@")[1]?.trim()?.toLowerCase();
         console.log("[*] Fetched Email Address", emailAddress);
-        
 
+        // Fetching User
+        const userId = req.user.id;
+
+        // Validating Email Response
         if (!emailAddress) {
             return res.status(400).json({
                 status: false,
@@ -1237,44 +1253,80 @@ router.post("/updateEmail", authMiddleware, async function (req, res) {
             })
         }
 
-        if(!emailRegex.test(emailAddress)){
+        // Validating Email Structure
+        if (!emailRegex.test(emailAddress)) {
             return res.status(400).json({
                 status: false,
                 message: "Invalid Email Address format"
             })
         }
 
-        if (emailAddress.length < 5) {
+        // Validating Email Min length
+        if (emailAddress?.length < 5) {
             return res.status(400).json({
                 status: false,
                 message: "Email Address should be at least 5 characters"
             })
         }
 
-        if (emailAddress.length > 50) {
+        // Validating Email Max Length
+        if (emailAddress?.length > 50) {
             return res.status(400).json({
                 status: false,
                 message: "Email Address cannot exceed 50 characters"
             });
         }
 
-        // Fetching User
-        const userId = req.user.id;
+        // Validating Email Authenticity
+        if (blockedEmailDomains?.has(emailDomain) || disposableDomains?.includes(emailDomain)) {
+            return res.status(400).json({
+                status: false,
+                message: "Temporary Email Addresses are not allowed"
+            });
+        }
 
-        // Updating Name in database
+        // Validating Email Duplication
+
+        const duplicationQuery = `SELECT userId from Users WHERE email = ? LIMIT 1`;
+        const [duplicationResults] = await pool.query(duplicationQuery, [emailAddress]);
+        const userIdFetchedFromDb = duplicationResults[0]?.userId;
+
+        if (duplicationResults.length > 0) {
+
+            if (Number(userId) === Number(userIdFetchedFromDb)) {
+
+                return res.status(400).json({
+                    status: false,
+                    message: "New email address must be different from current email address"
+                })
+            }
+
+            return res.status(409).json({
+                status: false,
+                message: "User with that email address already exists"
+            })
+        }
+
+
+        // Updating Email in database
         const query = `UPDATE users SET email = ? WHERE userId = ?`;
-        const [result] = await pool.execute(query,[emailAddress,userId]);
+        const [result] = await pool.execute(query, [emailAddress, userId]);
 
         // Result 
+
+        return res.status(200).json({
+            status: true,
+            message: "Email updated successfully"
+        });
     }
     catch (error) {
-        console.log("[*] Error while updating last name ", error?.message || error);
+        console.log("[*] Error while updating Email Address ", error?.message || error);
         return res.status(500).json({
             status: false,
             message: "Internal Server Error"
         })
     }
 
-})
+});
 
 module.exports = router;
