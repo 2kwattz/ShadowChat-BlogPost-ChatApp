@@ -1329,4 +1329,28 @@ router.post("/updateEmail", authMiddleware, async function (req, res) {
 
 });
 
+// Updating Username
+
+router.post("/updateUsername", authMiddleware, async function(req,res) {
+    try{
+        console.log("[*] Reached update username route");
+
+        // Fetching username from Request Body
+        const username = cleanXSS(req.body?.username).trim()?.toLowerCase();
+
+        // Fetching User Id from Request Header
+        const userId = req.user.id;
+
+
+    }
+    catch(error){
+        console.log("[*] Error in Updating Username ",error?.message || error);
+
+        res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 module.exports = router;
