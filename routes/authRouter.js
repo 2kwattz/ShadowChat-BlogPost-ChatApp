@@ -1095,6 +1095,8 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
 // CRUD Operations
 
+// Update First Name
+
 router.post("/updateFirstName", authMiddleware, async function (req, res) {
 
     try {
@@ -1142,6 +1144,64 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
     }
     catch (error) {
         console.log("[*] Error while updating first name ", error?.message || error);
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        })
+    }
+
+})
+
+// Update Last Name
+
+
+router.post("/updateLastName", authMiddleware, async function (req, res) {
+
+    try {
+        const lastName = cleanXSS(req.body.lastName)?.trim();
+        console.log("[*] Fetched Last Name", lastName);
+        
+
+        if (!lastName) {
+            return res.status(400).json({
+                status: false,
+                message: "Last name is required"
+            })
+        }
+
+
+        if (!lettersOnlyValidationRegex.test(lastName)) {
+            return res.status(400).json({
+                status: false,
+                message: "Last name can only contain letters"
+            })
+        }
+
+        if (lastName.length < 2) {
+            return res.status(400).json({
+                status: false,
+                message: "Last name should be at least 2 characters. Are you a person or a variable?"
+            })
+        }
+
+        if (lastName.length > 50) {
+            return res.status(400).json({
+                status: false,
+                message: "Last name cannot exceed 50 characters"
+            });
+        }
+
+        const formattedName = formatName(lastName);
+
+        // Fetching User
+        const userId = req.user.id;
+
+        // Updating Name in database
+        const query = `UPDATE users SET lastName = ? WHERE userId = ?`;
+        const [result] = await pool.execute(query,[formatName,userId]);
+    }
+    catch (error) {
+        console.log("[*] Error while updating last name ", error?.message || error);
         return res.status(500).json({
             status: false,
             message: "Internal Server Error"
