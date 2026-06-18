@@ -189,9 +189,7 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
     }
 
     finally {
-
         connection.release();
-
     }
 })
 

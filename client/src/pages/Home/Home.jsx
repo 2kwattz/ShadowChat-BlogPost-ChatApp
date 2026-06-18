@@ -15,13 +15,27 @@ function Home() {
 
   const [communityList, setCommunityList] = useState([])
 
+  async function fetchCommunities(){
+    let response;
+    try{
+      response = await getCommunities();
+      setCommunityList(response?.data)
+      console.log("API RESPONSE", response?.data)
+      return response;
+
+    }
+    catch(error){
+      console.log("Error in calling Fetch communities ",error?.response?.data || error?.response)
+    }
+  }
   useEffect(() => {
-    const response = getCommunities();
-    console.log("API RESPONSE")
-  })
+fetchCommunities()
+  },[])
 
 
-
+useEffect(()=>{
+console.log("COMMUNITY LIST ",communityList)
+},[communityList])
   return (
     <React.Fragment>
       <Navbar />
@@ -118,9 +132,69 @@ function Home() {
           <p>#Photography</p>
         </div>
       </div>
-      {/* Chatroom List Test */}
 
-      <section>
+      {/* Main Section */}
+
+      <section className={styles.mainFeed}>
+
+        <section className={styles.feedLeft}>
+
+          <aside className={styles.leftAbout}>
+            <p>MENU</p>
+
+            <div className={styles.leftSidebar}>
+              <ul>
+                <li>Home</li>
+                <li>Discover</li>
+                <li>Communities</li>
+                <li>Chatroom</li>
+                <li>Popular</li>
+              </ul>
+            </div>
+
+             <p>INFO</p>
+
+              <ul>
+                <li>About</li>
+                <li>Contact</li>
+                <li>Guidelines</li>
+                <li>Chatroom</li>
+                <li>Popular</li>
+              </ul>
+          </aside>
+          
+          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus accusantium odit cum ullam quisquam saepe suscipit molestias maiores, nisi animi natus tempora deserunt ipsum nam incidunt, nobis autem alias dicta similique eius! Eos nulla aperiam explicabo, quia unde accusamus odio.
+        </section>
+        <main className={styles.feedCenter}>
+
+          
+          <section className={styles.chatroomSection}>
+          <h4>Live Chatrooms</h4>
+
+          <div className={styles.chatroomCards}>
+
+            {communityList?.length > 0 ? (
+              communityList?.map((item,index)=>{
+
+                return(
+
+                <div>
+                  <p style={{color:"white"}}>{item?.community_name}</p>
+                  <p style={{color:"white"}}>{item?.community_description}</p>
+                  <p style={{color:"white"}}>{item?.member_count}</p>
+                  <p style={{color:"white"}}>{item?.community_rules}</p>
+                  </div>
+                )
+              })
+            ): (<p style={{color:"white"}}>No Communities Found</p>)}
+
+          </div>
+
+          </section>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsam possimus iusto id at culpa aliquam! Error cum tenetur pariatur quidem, eligendi recusandae repellendus accusantium, quos repellat illo, eum deleniti?
+          
+          </main>
+        <aside className={styles.feedRight}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus aliquid modi omnis. Esse dolores velit, harum dolore ipsa saepe totam.</aside>
 
       </section>
 
