@@ -88,7 +88,7 @@ const validateData = (data) => {
     }
 
     // Validating Email Address
-    if (!data.email || data.email.trim() === "") {
+    if (!data.email || data.email?.trim() === "") {
 
         return {
             status: false,
@@ -1152,7 +1152,7 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
         const query = `UPDATE users SET firstName = ? WHERE userId = ?`;
         const [result] = await pool.execute(query, [formattedName, userId]);
 
-         // Result 
+        // Result 
 
         return res.status(200).json({
             status: true,
@@ -1331,22 +1331,30 @@ router.post("/updateEmail", authMiddleware, async function (req, res) {
 
 // Updating Username
 
-router.post("/updateUsername", authMiddleware, async function(req,res) {
-    try{
+router.post("/updateUsername", authMiddleware, async function (req, res) {
+    try {
         console.log("[*] Reached update username route");
 
         // Fetching username from Request Body
-        const username = cleanXSS(req.body?.username).trim()?.toLowerCase();
+        const username = cleanXSS(req.body?.username)?.trim()?.toLowerCase();
 
         // Fetching User Id from Request Header
         const userId = req.user.id;
+        console.log("[*] User Id:", userId);
+
+        if (!username) {
+            return res.status(400).json({
+                status: false,
+                message: "Username is required"
+            })
+        }
 
 
     }
-    catch(error){
-        console.log("[*] Error in Updating Username ",error?.message || error);
+    catch (error) {
+        console.log("[*] Error in Updating Username ", error?.message || error);
 
-        res.status(500).json({
+        return res.status(500).json({
             status: false,
             message: "Internal Server Error"
         })
