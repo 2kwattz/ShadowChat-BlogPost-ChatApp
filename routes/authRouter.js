@@ -1031,33 +1031,33 @@ router.get("/mydevices", authMiddleware, async function (req, res) {
 
         const [devices] = await pool.execute(
             `
-SELECT
-    d.id,
-    d.device_uuid,
-    d.browser,
-    d.browser_version,
-    d.operating_system,
-    d.os_version,
-    d.device_type,
-    d.device_vendor,
-    d.device_model,
+        SELECT
+            d.id,
+            d.device_uuid,
+            d.browser,
+            d.browser_version,
+            d.operating_system,
+            d.os_version,
+            d.device_type,
+            d.device_vendor,
+            d.device_model,
 
-    ud.ip_address,
-    ud.is_active,
-    ud.last_seen_at,
-    ud.created_at
+            ud.ip_address,
+            ud.is_active,
+            ud.last_seen_at,
+            ud.created_at
 
-FROM user_devices ud
+            FROM user_devices ud
 
-INNER JOIN devices d
-    ON d.id = ud.deviceId
+            INNER JOIN devices d
+            ON d.id = ud.deviceId
 
-WHERE ud.userId = ?
+            WHERE ud.userId = ?
 
-ORDER BY ud.last_seen_at DESC
-`,
+            ORDER BY ud.last_seen_at DESC
+            `,
             [userId]
-        );
+            );
 
         console.log("[*] User Devices Info fetched ", devices);
 
@@ -1090,6 +1090,35 @@ ORDER BY ud.last_seen_at DESC
 
 
     }
+})
+
+// CRUD Operations
+
+router.post("/updateFirstName", authMiddleware, async function (req,res) {
+
+    try{
+        const firstName = cleanXSS(req.body.firstName);
+        console.log("[*] Fetched First Name", firstName);
+
+        if(!firstName){
+            return res.status(400).json({
+                status: false,
+                message: "Invalid first name"
+            })
+        }
+
+        if(firstName.length < 2){
+            return res.status(400).json({
+                status: false,
+                message: "First name should be at least 2 characters. (We remember you Om) Are you a person or a variable?"
+            })
+        }
+
+    }
+    catch(error){
+        console.log("[*] Error while updating first name");
+    }
+    
 })
 
 
