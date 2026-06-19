@@ -121,8 +121,8 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
 
         const [insertCommunity] = await connection.query(
             `
-    INSERT INTO communities
-    (
+        INSERT INTO communities
+        (
         community_name,
         community_icon_url,
         community_rules,
@@ -249,6 +249,12 @@ router.get("/all", async function (req, res) {
 })
 
 // View Specific Community
+
+router.get("/:communityName", authMiddleware,async function name() {
+
+    
+    
+})
 
 
 module.exports = router;
