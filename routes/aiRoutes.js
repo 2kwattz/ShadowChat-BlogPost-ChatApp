@@ -30,6 +30,7 @@ router.post("/askllm", authMiddleware,async function(req,res){
                 message:response
             })
         }
+        
         else{
             return res.status(500).json({
                 status:false,

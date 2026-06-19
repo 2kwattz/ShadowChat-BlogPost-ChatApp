@@ -6,6 +6,7 @@ const axios = require("axios");
 
 async function askQwen2(prompt) {
     try {
+        
         console.log(`[*] Calling Qwen 2`);
         console.log("[*] Qwen2 Query ",prompt)
         const response = await axios.post(
