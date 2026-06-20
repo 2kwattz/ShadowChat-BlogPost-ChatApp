@@ -1,6 +1,7 @@
 // Ollama AI Service based on Local Machine
 
-const axios = require("axios");
+const axios = require("axios"); // HTTP Request Maker
+const {BASE_URL} = require("../utils/globals")
 
 // Configuring Qwen2.5 Coder 7B
 

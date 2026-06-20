@@ -174,9 +174,6 @@ router.post("/create", authMiddleware, upload.single("cIcon"), async function (r
             communitySlug: cleanedBodyData.cSlug
         });
 
-
-
-
     }
     catch (error) {
 
