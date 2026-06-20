@@ -1153,6 +1153,29 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
         const query = `UPDATE users SET firstName = ? WHERE userId = ?`;
         const [result] = await pool.execute(query, [formattedName, userId]);
 
+           // If Database updation failed
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "No records updated"
+            });
+        }
+
+
+        // Result
+
+        const cachedUser = await redisClient.get(`user:${userId}`);
+
+        if (cachedUser) {
+            console.log("[*] User present in Cache")
+
+            const user = JSON.parse(cachedUser);
+
+            user.firstName = formattedName;
+
+            await redisClient.set(`user:${userId}`, JSON.stringify(user), "EX", 86400)
+        }
+
         // Result 
 
         return res.status(200).json({
@@ -1221,7 +1244,7 @@ router.post("/updateLastName", authMiddleware, async function (req, res) {
         if (result.affectedRows === 0) {
             return res.status(404).json({
                 status: false,
-                message: "Internal Server Error"
+                message: "No records updated"
             });
         }
 
