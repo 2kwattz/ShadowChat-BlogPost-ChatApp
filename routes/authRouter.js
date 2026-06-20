@@ -988,6 +988,7 @@ router.get("/myprofile", authMiddleware, async function (req, res) {
             console.log("[*] Console Logging User Info ", user);
 
             // Storing Data in Redis Cache
+
             await redisClient.set(`user:${userId}`, JSON.stringify(user),
                 "EX",
                 86400
@@ -1216,7 +1217,28 @@ router.post("/updateLastName", authMiddleware, async function (req, res) {
         const query = `UPDATE users SET lastName = ? WHERE userId = ?`;
         const [result] = await pool.execute(query, [formattedName, userId]);
 
-        // Result 
+        // If Database updation failed
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                status: false,
+                message: "Internal Server Error"
+            });
+        }
+
+
+        // Result
+
+        const cachedUser = await redisClient.get(`user:${userId}`);
+
+        if (cachedUser) {
+            console.log("[*] User present in Cache")
+
+            const user = JSON.parse(cachedUser);
+
+            user.lastName = formattedName;
+
+            await redisClient.set(`user:${userId}`, JSON.stringify(user), "EX", 86400)
+        }
 
         return res.status(200).json({
             status: true,
