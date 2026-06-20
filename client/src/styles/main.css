@@ -181,8 +181,8 @@ background-color: rgba(255,255,255,0.08);
 color: var(--cyan-secondary);
 }
 
-/* Layout */
 
+/* Layout */
 
 /* Main Feed */
 
@@ -214,4 +214,5 @@ color: var(--cyan-secondary);
     border: 1px solid var(--border-secondary-dark);
     color: var(--text-white-3);
     padding: 20px;
+    border-radius: 24px;
 }

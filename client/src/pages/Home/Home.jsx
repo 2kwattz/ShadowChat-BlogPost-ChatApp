@@ -152,7 +152,7 @@ console.log("COMMUNITY LIST ",communityList)
               </ul>
             </div>
 
-             <p>INFO</p>
+             <h3 className="heading4">INFO</h3>
 
               <ul>
                 <li>About</li>
