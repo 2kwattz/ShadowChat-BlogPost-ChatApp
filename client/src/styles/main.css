@@ -15,8 +15,10 @@
 
     --bg-navbar: rgba(6, 8, 16, 0.80);
 
+    
     --border-primary-dark: rgba(255, 255, 255, 0.055);
-    --border-secondary-dark: rgba(167, 139, 250, 0.30);
+    --border-secondary-dark: rgba(255,255,255,0.07);
+    --border-primary-purple: rgba(167, 139, 250, 0.30);
 
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
@@ -80,6 +82,18 @@ html {
 
 }
 
+/* Heading 1 */
+
+/* Heading 2 */
+
+/* Heading 3 */
+
+/* Heading 4 */
+
+.heading4{
+    font-size: 1rem;
+}
+
 .yellowPrimaryGradient {
     background: linear-gradient(135deg, var(--amber-primary) 0%, var(--amber-secondary) 100%);
     -webkit-background-clip: text;
@@ -118,7 +132,7 @@ html {
 }
 
 .transparentButton:hover {
-    border-color: var(--border-secondary-dark);
+    border-color: var(--border-primary-purple);
     color: var(--lightpurple-secondary);
     transition: all 0.18s;
 }
@@ -156,4 +170,39 @@ html {
 .greyButton:hover{
 background-color: rgba(255,255,255,0.08);
 color: var(--cyan-secondary);
+}
+
+/* Layout */
+
+
+/* Main Feed */
+
+.mainFeed{
+    display: grid;
+    grid-template-columns: 1fr 3fr 1fr;
+    /* grid-template-rows: 100vh; */
+    gap: 10px;
+    background-color: var(--bg-dark-primary);
+    margin: 0px 110px;
+}
+
+.feedLeft{
+    background-color: brown;
+    padding: 30px;
+}
+
+.feedRight{
+    background-color: cadetblue;
+}
+
+.feedCenter{
+    background-color: blue;
+
+}
+
+.leftAbout{
+    background: linear-gradient(160deg,rgba(13,17,33,0.98),rgba(9,12,23,0.96));
+    border: 1px solid var(--border-secondary-dark);
+    color: var(--text-white-3);
+    padding: 20px;
 }

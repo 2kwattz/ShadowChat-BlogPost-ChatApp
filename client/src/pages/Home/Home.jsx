@@ -135,14 +135,14 @@ console.log("COMMUNITY LIST ",communityList)
 
       {/* Main Section */}
 
-      <section className={styles.mainFeed}>
+      <section className="mainFeed">
 
-        <section className={styles.feedLeft}>
+        <section className="feedLeft">
 
-          <aside className={styles.leftAbout}>
-            <p>MENU</p>
+          <aside className="leftAbout">
+            <h3 className="heading4">MENU</h3>
 
-            <div className={styles.leftSidebar}>
+            <div className="leftSidebar">
               <ul>
                 <li>Home</li>
                 <li>Discover</li>
@@ -165,7 +165,7 @@ console.log("COMMUNITY LIST ",communityList)
           
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus accusantium odit cum ullam quisquam saepe suscipit molestias maiores, nisi animi natus tempora deserunt ipsum nam incidunt, nobis autem alias dicta similique eius! Eos nulla aperiam explicabo, quia unde accusamus odio.
         </section>
-        <main className={styles.feedCenter}>
+        <main className="feedCenter">
 
           
           <section className={styles.chatroomSection}>
@@ -194,7 +194,7 @@ console.log("COMMUNITY LIST ",communityList)
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsam possimus iusto id at culpa aliquam! Error cum tenetur pariatur quidem, eligendi recusandae repellendus accusantium, quos repellat illo, eum deleniti?
           
           </main>
-        <aside className={styles.feedRight}>Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus aliquid modi omnis. Esse dolores velit, harum dolore ipsa saepe totam.</aside>
+        <aside className="feedRight">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus aliquid modi omnis. Esse dolores velit, harum dolore ipsa saepe totam.</aside>
 
       </section>
 
