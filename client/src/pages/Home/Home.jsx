@@ -152,7 +152,9 @@ console.log("COMMUNITY LIST ",communityList)
               </ul>
             </div>
 
-             <h3 className="heading4">INFO</h3>
+            <hr style={{ marginTop: 15,border: "1px solid rgba(255,255,255,0.06)"}}></hr>
+
+             <h3 style={{marginTop: 15}} className="heading4">INFO</h3>
 
               <ul>
                 <li>About</li>
@@ -169,7 +171,13 @@ console.log("COMMUNITY LIST ",communityList)
 
           
           <section className={styles.chatroomSection}>
-          <h4>Live Chatrooms</h4>
+
+            <div className={styles.subheading}>
+
+          <h4 className="heading4">Live Chatrooms</h4>
+
+          <h5 className="textColorWhite3">View More</h5>
+            </div>
 
           <div className={styles.chatroomCards}>
 
@@ -178,11 +186,13 @@ console.log("COMMUNITY LIST ",communityList)
 
                 return(
 
-                <div>
-                  <p style={{color:"white"}}>{item?.community_name}</p>
+                <div className={styles.chatroomCard}>
+                  <p style={styles.chatroomName}>{item?.community_name}</p>
                   <p style={{color:"white"}}>{item?.community_description}</p>
                   <p style={{color:"white"}}>{item?.member_count}</p>
                   <p style={{color:"white"}}>{item?.community_rules}</p>
+
+                  <button className="cyanButton">Join Now</button>
                   </div>
                 )
               })

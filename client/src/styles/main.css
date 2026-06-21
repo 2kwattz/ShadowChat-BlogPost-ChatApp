@@ -80,6 +80,10 @@ html {
     scroll-behavior: smooth
 }
 
+body{
+    background-color: var(--bg-dark-primary);
+}
+
 
 /* Headings */
 
@@ -99,6 +103,19 @@ html {
 
 .heading4{
     font-size: 1rem;
+    font-family: 'JetBrains Mono',monospace;
+}
+
+.textColorWhite1{
+    color: var(--text-white-1)
+}
+
+.textColorWhite2{
+    color: var(--text-white-2)
+}
+
+.textColorWhite3{
+    color: var(--text-white-3)
 }
 
 /* Gradients */
@@ -197,7 +214,17 @@ color: var(--cyan-secondary);
 
 .feedLeft{
     background-color: brown;
-    padding: 30px;
+    padding: 20px;
+    border: 1px solid var(--border-secondary-dark);
+    gap: 10px;
+}
+
+.feedLeft ul{
+    list-style-type: none;
+}
+
+.feedLeft ul li{
+    margin-top: 9px;
 }
 
 .feedRight{
@@ -206,6 +233,7 @@ color: var(--cyan-secondary);
 
 .feedCenter{
     background-color: blue;
+    padding: 15px 30px;
 
 }
 
