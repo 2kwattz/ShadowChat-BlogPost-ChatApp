@@ -40,7 +40,7 @@
     --cyan-tertiary: #a5f3fc;
     --cyan-dark-primary: #0891b2;
     --cyan-glow-primary: rgba(34, 211, 238, 0.20);
-    --cyan-glow-secondary: #rgba(34, 211, 238, 0.08);
+    --cyan-glow-secondary: rgba(34, 211, 238, 0.08);
     --cyan-border: rgba(34, 211, 238, 0.30);
 
     /* Dark Purple Colors */
@@ -64,7 +64,7 @@
     --amber-primary: #f59e0b;
     --amber-secondary: #fbbf24;
     --amber-tertiary: #fde68a;
-    --amber-dark: b45309;
+    --amber-dark: #b45309;
     --amber-glow: rgba(245, 158, 11, 0.20);
     --amber-glow2: rgba(245, 158, 11, 0.09);
     --amber-border: rgba(245, 158, 11, 0.32);

@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 
 
 // Styles
-import styles from "../Home/home.module.css"
+import styles from "./home.module.css"
 import "../../styles/main.css"
 
 // Components
-import Navbar from '../../components/navbar/navbar';
+import Navbar from '../../components/Navbar/navbar';
 
 // Apis
 import { getCommunities } from "../../services/api";
@@ -19,7 +19,7 @@ function Home() {
     let response;
     try{
       response = await getCommunities();
-      setCommunityList(response?.data)
+      setCommunityList(Array.isArray(response?.data) ? response.data : [])
       console.log("API RESPONSE", response?.data)
       return response;
 
@@ -51,11 +51,11 @@ console.log("COMMUNITY LIST ",communityList)
 
           <div className={styles.buttonsWrapper}>
             <button className="cyanButton">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
               Explore the feed</button>
 
             <button className="greyButton">
-              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
               Join a Chatroom
             </button>
 
@@ -186,8 +186,8 @@ console.log("COMMUNITY LIST ",communityList)
 
                 return(
 
-                <div className={styles.chatroomCard}>
-                  <p style={styles.chatroomName}>{item?.community_name}</p>
+                <div className={styles.chatroomCard} key={item?.community_id ?? item?.id ?? index}>
+                  <p className={styles.chatroomName}>{item?.community_name}</p>
                   <p style={{color:"white"}}>{item?.community_description}</p>
                   <p style={{color:"white"}}>{item?.member_count}</p>
                   <p style={{color:"white"}}>{item?.community_rules}</p>
