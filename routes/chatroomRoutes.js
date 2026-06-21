@@ -83,11 +83,17 @@ router.get("/all",authMiddleware, async function (req, res) {
 
 // Fetch Individual Chatroom
 
-router.get("/:roomUUID", async function(req,res) {
+router.get("/getCommunity/:roomSlug", async function(req,res) {
 
     try{
-        const roomUUID = req.params.roomUUID;
-        console.log("[*] Loaded Chatroom ",roomUUID)
+        const roomSlug = cleanXSS(req.params.roomSlug.toLowerCase().trim());
+        console.log("[*] Loaded Chatroom ",roomSlug);
+
+        const fetchCommunityQuery = `SELECT * FROM COMMUNITIES WHERE normalized_slug = ?`;
+
+        const [results] = await pool.execute(fetchCommunityQuery,roomSlug)
+
+        
     }
     catch(error){
         

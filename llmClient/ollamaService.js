@@ -68,7 +68,7 @@ async function verifyModel(modelName) {
 
     } catch (error) {
         console.log(`[*] ${modelName} LLM connection failed`);
-        console.log(error.message);
+        console.log(`[*] ${error.message}`);
         return false;
     }
 }
