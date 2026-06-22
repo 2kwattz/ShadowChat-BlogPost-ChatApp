@@ -81,29 +81,4 @@ router.get("/all",authMiddleware, async function (req, res) {
     }
 })
 
-// Fetch Individual Chatroom
-
-router.get("/getCommunity/:roomSlug", async function(req,res) {
-
-    try{
-        const roomSlug = cleanXSS(req.params.roomSlug.toLowerCase().trim());
-        console.log("[*] Loaded Chatroom ",roomSlug);
-
-        const fetchCommunityQuery = `SELECT * FROM COMMUNITIES WHERE normalized_slug = ?`;
-
-        const [results] = await pool.execute(fetchCommunityQuery,roomSlug)
-
-        
-    }
-    catch(error){
-        
-        console.log(`[*] Error in loading room ${error.message || error}`);
-        return res.status(500).json({
-         status:false,
-         message:"Internal Server Error"
-      });
-    }
-    
-})
-
 module.exports = router;

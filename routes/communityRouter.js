@@ -247,11 +247,67 @@ router.get("/all", async function (req, res) {
 
 // View Specific Community
 
-router.get("/:communityName", authMiddleware,async function name() {
+router.get("/:communitySlug", authMiddleware, async function name() {
 
-    
-    
-})
+    try {
+        console.log("[*] Fetching Community Details");
 
+        // Regex to validate slug
+        const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
+
+
+        const communitySlug = cleanXSS(req.body.communitySlug).trim().toLowerCase();
+        if (!slugTestRegex.test(communitySlug)) {
+            return res.status(400).json({
+                status: false,
+                message: "Community slug can only contain letters, numbers and underscores. First character can only be a letter"
+            })
+        }
+
+        const fetchCommunityQuery = `SELECT * FROM communities WHERE normalized_slug = ? LIMIT 1`;
+
+        const [result] = await pool.execute(fetchCommunityQuery, communitySlug);
+
+        if (!result) {
+            return res.status(404).json({
+                status: false,
+                message: "Community not found"
+            })
+        }
+
+        if (result.length > 50) {
+
+            return res.status(409).json({
+                status: false,
+                message: "Community name cannot be more than 50 characters"
+            })
+
+        }
+
+        const community = result[0];
+
+        return res.status(200).json({
+            status: true,
+            communityName: community.community_name,
+            communityDescription: community.community_description,
+            communityRules: community.community_rules,
+            communityCoverImage: community.community_cover_url,
+            communityIcon: community.community_icon_url,
+            communityAdmin: community.community_admin_id,
+            communitySlug: community.community_slug,
+            memberCount: community.member_count,
+        })
+    }
+    catch (error) {
+        console.log("[*] Error in fetching community name ", error);
+
+        console.log(`[*] Error in loading room ${error.message || error}`);
+        return res.status(500).json({
+            status: false,
+            message: "Internal Server Error"
+        });
+    }
+
+});
 
 module.exports = router;
