@@ -91,7 +91,7 @@ function Login() {
         onSubmit={handleLogin}
         >
 
-        <h1>Login</h1>
+        <h1 style={{color: "white"}}>Login</h1>
 
         <input
           type="text"

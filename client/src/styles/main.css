@@ -198,6 +198,19 @@ background-color: rgba(255,255,255,0.08);
 color: var(--cyan-secondary);
 }
 
+/* Alert Box */
+
+.alert{
+    margin-top: 20px;
+    padding: 20px 15px;
+    background: linear-gradient(90deg,rgba(34,211,238,0.04),rgba(167,139,250,0.04));
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    color: var(--text-white-1);
+    
+}
+
+
 
 /* Layout */
 
@@ -232,7 +245,6 @@ color: var(--cyan-secondary);
 }
 
 .feedCenter{
-    background-color: blue;
     padding: 15px 30px;
 
 }

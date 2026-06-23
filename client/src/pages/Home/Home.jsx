@@ -174,7 +174,7 @@ console.log("COMMUNITY LIST ",communityList)
 
             <div className={styles.subheading}>
 
-          <h4 className="heading4">Live Chatrooms</h4>
+          <h4 className="heading4" style={{color:"white"}}>Live Chatrooms</h4>
 
           <h5 className="textColorWhite3">View More</h5>
             </div>
@@ -199,6 +199,11 @@ console.log("COMMUNITY LIST ",communityList)
             ): (<p style={{color:"white"}}>No Communities Found</p>)}
 
           </div>
+
+          </section>
+
+          <section className="alert">
+            <p style={{color:"white"}}>Browsing as a guest. Sign Up free to post, vote and join chatrooms</p>
 
           </section>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsam possimus iusto id at culpa aliquam! Error cum tenetur pariatur quidem, eligendi recusandae repellendus accusantium, quos repellat illo, eum deleniti?
