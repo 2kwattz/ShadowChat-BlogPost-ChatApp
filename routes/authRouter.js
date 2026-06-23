@@ -21,20 +21,9 @@ const { pool } = require("../db/conn");
 
 const authMiddleware = require("../middlewares/authMiddleware");
 
-// Disposable / Temp Mail Domains
-const blockedDomains = [
-    "tempmail.com",
-    "10minutemail.com",
-    "guerrillamail.com",
-    "mailinator.com",
-    "yopmail.com",
-    "trashmail.com",
-    "fakeinbox.com"
-];
-
 const allowedGenders = ["male", "female", "other"];
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const usernameRegex = /^[a-zA-Z0-9_]+$/;
+const usernameRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
 const lettersOnlyValidationRegex = /^[A-Za-z]+$/
 
 
@@ -1153,7 +1142,7 @@ router.post("/updateFirstName", authMiddleware, async function (req, res) {
         const query = `UPDATE users SET firstName = ? WHERE userId = ?`;
         const [result] = await pool.execute(query, [formattedName, userId]);
 
-           // If Database updation failed
+        // If Database updation failed
         if (result.affectedRows === 0) {
             return res.status(404).json({
                 status: false,
@@ -1357,6 +1346,20 @@ router.post("/updateEmail", authMiddleware, async function (req, res) {
         const query = `UPDATE users SET email = ? WHERE userId = ?`;
         const [result] = await pool.execute(query, [emailAddress, userId]);
 
+        // Storing in Redis Cache
+
+        const cachedUser = await redisClient.get(`user:${userId}`);
+
+        if (cachedUser) {
+            console.log("[*] User present in Cache")
+
+            const user = JSON.parse(cachedUser);
+
+            user.email = emailAddress;
+
+            await redisClient.set(`user:${userId}`, JSON.stringify(user), "EX", 86400)
+        }
+
         // Result 
 
         return res.status(200).json({
@@ -1387,12 +1390,36 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
         const userId = req.user.id;
         console.log("[*] User Id:", userId);
 
-        if (!username) {
+        if (!username || username === "") {
             return res.status(400).json({
                 status: false,
                 message: "Username is required"
             })
         }
+
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                status: false,
+                message: "Username can only contain letters, underscores and numbers. First character should be a letter"
+            })
+        }
+
+
+        if (emailRegex.test(username)) {
+            return res.status(400).json({
+                status: false,
+                error: "Username cannot be an email address"
+            });
+        }
+
+        if (username.length < 3 || username.length > 16) {
+            return res.status(400).json({
+                status: false,
+                error: "Username must be between 3 and 16 characters"
+            });
+        }
+
+
 
 
     }
