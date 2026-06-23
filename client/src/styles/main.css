@@ -211,6 +211,19 @@ color: var(--cyan-secondary);
 }
 
 
+/* Input Tags */
+
+.inputPrimary{
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    padding: 6px;
+    margin: 0px 15px;
+    transition: all 0.2s;
+    border-radius: 12px;
+    color: var(--text-white-1);
+}
+
+
 
 /* Layout */
 

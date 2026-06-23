@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./login.css";
 import { userLogin } from "../../services/api";
 import { useAuth } from "../../context/authContext";
-import Navbar from "../../components/navbar/navbar"
+import Navbar from "../../components/navbar/navbar";
+
+const styles = './login.css';
 
 
 function Login() {
@@ -21,7 +22,7 @@ function Login() {
 
   // Test Checking device id 
 
-  useEffect(()=>{
+  useEffect(() => {
 
     const id = getDeviceId()
     console.log("Device Id from local storage", id)
@@ -78,47 +79,57 @@ function Login() {
 
 
   return (
-<React.Fragment>
+    <React.Fragment>
 
-  <Navbar></Navbar>
+      <Navbar></Navbar>
 
-  
 
-    <div className="login-container">
 
-      <form
-        className="login-form"
-        onSubmit={handleLogin}
+      <div className="login-container">
+
+        <form
+          className="login-form"
+          onSubmit={handleLogin}
         >
 
-        <h1 style={{color: "white"}}>Login</h1>
+          <h1 style={{ color: "white" }}>Login</h1>
 
-        <input
-          type="text"
-          placeholder="Enter Email"
-          value={identifier}
-          onChange={(e) =>
-            setIdentifier(e.target.value)
-          }
-          />
+          <div className="card">
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          />
+            <div className={styles.loginTop}>
+              <h2 style={{ color: "white" }}>Welcome Back</h2>
+              <p style={{ color: "white" }}>Log in to keep the conversation going.</p>
+            </div>
+            <input
+              type="text"
+              placeholder="Enter Email or Username"
+              className="inputPrimary"
+              value={identifier}
+              onChange={(e) =>
+                setIdentifier(e.target.value)
+              }
+            />
 
-        <button type="submit">
-          Login
-        </button>
+            <input
+              type="password"
+              className="inputPrimary"
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+            />
 
-      </form>
+            <button className="purpleGradientButton" type="submit">
+              Login
+            </button>
+          </div>
 
-    </div>
-          </React.Fragment>
+
+        </form>
+
+      </div>
+    </React.Fragment>
   );
 }
 
