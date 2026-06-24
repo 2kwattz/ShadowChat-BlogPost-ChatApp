@@ -1542,6 +1542,11 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
 
     catch (error) {
 
+        console.error(
+            "[*] Error updating password:",
+            error?.message || error
+        );
+
         return res.status(500).json({
             status: false,
             error: "Internal Server Error"
