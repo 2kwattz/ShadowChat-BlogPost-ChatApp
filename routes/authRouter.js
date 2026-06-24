@@ -7,7 +7,8 @@ const disposableDomains = require("disposable-email-domains"); // Real Time List
 const redisClient = require("../redis/redisClient");
 
 // Templates
-const welcomeTemplate = require("../templates/welcome")
+const welcomeTemplate = require("../templates/welcome");
+const confirmPasswordResetTemplate = require("../templates/confirmResetPassword");
 
 
 // Utility Functions
@@ -1442,6 +1443,7 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
         const oldPassword = req.body.oldPassword?.trim();
         const newPassword = req.body.newPassword?.trim();
         const confirmNewPassword = req.body.confirmNewPassword?.trim();
+        const userIpAddress = req.ip;
 
         if (!oldPassword) {
             return res.status(400).json({
@@ -1498,7 +1500,7 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
         }
 
         const [users] = await pool.execute(
-            "SELECT password FROM users WHERE userId = ? LIMIT 1",
+            "SELECT firstName, email, password FROM users WHERE userId = ? LIMIT 1",
             [req.user.id]
         );
 
@@ -1510,6 +1512,8 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
         }
 
         const dbUserPassword = users[0].password;
+        const dbUserFirstName = users[0].firstName;
+        const dbUserEmail = users[0].email;
 
         // Comparing Old Database Password with User entered password
         const isPasswordMatch = await bcrypt.compare(oldPassword, dbUserPassword);
@@ -1532,6 +1536,19 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
 
         // Invalidating cache temporarily
         await redisClient.del(`user:${req.user.id}`);
+
+           try {
+
+            await sendEmail(
+                dbUserEmail,
+                "Your Password has been changed",
+                confirmPasswordResetTemplate(dbUserFirstName,userIpAddress)
+            );
+        }
+        catch (error) {
+            console.log("[*] Error in sending Update Password Confirmation Email")
+        }
+        
 
         return res.status(200).json({
             status: true,
