@@ -1422,6 +1422,7 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
 
 
 
+
     }
     catch (error) {
         console.log("[*] Error in Updating Username ", error?.message || error);
@@ -1433,20 +1434,133 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
     }
 })
 
+// Updating Password 
+
+router.post("/updatePassword", authMiddleware, async function (req, res) {
+    try {
+
+        const oldPassword = req.body.oldPassword?.trim();
+        const newPassword = req.body.newPassword?.trim();
+        const confirmNewPassword = req.body.confirmNewPassword?.trim();
+
+        if (!oldPassword) {
+            return res.status(400).json({
+                status: false,
+                error: "Old password is required"
+            });
+        }
+
+        if (!newPassword) {
+            return res.status(400).json({
+                status: false,
+                error: "New password is required"
+            });
+        }
+
+        if (!confirmNewPassword) {
+            return res.status(400).json({
+                status: false,
+                error: "Confirm password is required"
+            });
+        }
+
+
+        const passwordRegex =
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
+        // Validating Strong Password
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).json({
+                status: false,
+                error: "Password must contain uppercase, lowercase and number"
+            });
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({
+                status: false,
+                error: "New password and confirm password should match"
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                status: false,
+                error: "Password should atleast be 6 characters"
+            });
+        }
+
+        if (oldPassword === newPassword) {
+            return res.status(400).json({
+                status: false,
+                error: "New password must be different from old password"
+            });
+        }
+
+        const [users] = await pool.execute(
+            "SELECT password FROM users WHERE userId = ? LIMIT 1",
+            [req.user.id]
+        );
+
+        if (users.length === 0) {
+            return res.status(404).json({
+                status: false,
+                error: "User not found"
+            });
+        }
+
+        const dbUserPassword = users[0].password;
+
+        // Comparing Old Database Password with User entered password
+        const isPasswordMatch = await bcrypt.compare(oldPassword, dbUserPassword);
+
+        if (!isPasswordMatch) {
+            return res.status(400).json({
+                status: false,
+                error: "Old password is incorrect"
+            });
+        }
+
+        // Hash new password
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update Hashed Password to the database
+        await pool.execute(
+            "UPDATE users SET password = ? WHERE userId = ?",
+            [hashedNewPassword, req.user.id]
+        );
+
+        return res.status(200).json({
+            status: true,
+            message: "Password updated successfully"
+        });
+    }
+
+
+    catch (error) {
+
+        return res.status(500).json({
+            status: false,
+            error: "Internal Server Error"
+        });
+
+    }
+})
+
 // Delete Account
 
-router.post("/deleteAccount", authMiddleware,async function(req,res){
-    try{
+router.post("/deleteAccount", authMiddleware, async function (req, res) {
+    try {
         console.log("[*] Reached delete account route");
 
         // Checking wheater user owns any communities/chatrooms
-        
+
     }
-    catch(error){
+    catch (error) {
 
         res.status(500).json({
-            status:false,
-            message:"Internal Server Error"
+            status: false,
+            message: "Internal Server Error"
         })
 
     }
