@@ -1433,4 +1433,23 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
     }
 })
 
+// Delete Account
+
+router.post("/deleteAccount", authMiddleware,async function(req,res){
+    try{
+        console.log("[*] Reached delete account route");
+
+        // Checking wheater user owns any communities/chatrooms
+        
+    }
+    catch(error){
+
+        res.status(500).json({
+            status:false,
+            message:"Internal Server Error"
+        })
+
+    }
+})
+
 module.exports = router;
