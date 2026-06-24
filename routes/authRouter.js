@@ -1530,6 +1530,9 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
             [hashedNewPassword, req.user.id]
         );
 
+        // Invalidating cache temporarily
+        await redisClient.del(`user:${req.user.id}`);
+
         return res.status(200).json({
             status: true,
             message: "Password updated successfully"
