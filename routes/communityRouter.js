@@ -247,7 +247,7 @@ router.get("/all", async function (req, res) {
 
 // View Specific Community
 
-router.get("/:communitySlug", authMiddleware, async function name() {
+router.get("/:communitySlug", authMiddleware, async function (req,res) {
 
     try {
         console.log("[*] Fetching Community Details");
@@ -256,7 +256,9 @@ router.get("/:communitySlug", authMiddleware, async function name() {
         const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
 
 
-        const communitySlug = cleanXSS(req.body.communitySlug).trim().toLowerCase();
+        const communitySlug = req.params.communitySlug.trim().toLowerCase();
+
+        console.log(`[*] Community Slug from backend `,communitySlug)
         if (!slugTestRegex.test(communitySlug)) {
             return res.status(400).json({
                 status: false,
@@ -266,7 +268,9 @@ router.get("/:communitySlug", authMiddleware, async function name() {
 
         const fetchCommunityQuery = `SELECT * FROM communities WHERE normalized_slug = ? LIMIT 1`;
 
-        const [result] = await pool.execute(fetchCommunityQuery, communitySlug);
+        const [result] = await pool.execute(fetchCommunityQuery, [communitySlug]);
+
+        console.log("[*] Result from SQL Query ",result)
 
         if (!result) {
             return res.status(404).json({

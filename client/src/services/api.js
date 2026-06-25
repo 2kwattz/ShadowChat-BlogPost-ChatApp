@@ -16,7 +16,7 @@ export const userVerification = async() => {
     }
     catch(error){
         console.error(`Error in calling User Verification API ${error}`)
-        throw error;
+        return error.response.data;
     }
 }
 
@@ -34,7 +34,7 @@ export const userLogin = async(data) => {
     }
     catch(error){
         console.error(`Error in calling User Login API ${error}`)
-        throw error;
+        return error.response.data;
     }
 }
 
@@ -65,7 +65,7 @@ export const fetchUserProfile = async(data) => {
         return response.data
     }
     catch(error){
-        console.log("Error fetching User Profile ",error.response.data)
+        console.error("Error fetching User Profile ",error.response.data)
         return error.response.data;
     }
 }
@@ -80,7 +80,7 @@ export const fetchUserDevices = async(data) => {
         return response.data
     }
     catch(error){
-        console.log("Error fetching User Profile ",error.response.data)
+        console.error("Error fetching User Profile ",error.response.data)
         return error.response.data;
     }
 }
@@ -98,7 +98,7 @@ export const getChatrooms = async(data) => {
     }
     catch(error){
         console.error(`Error in calling Get Chatroom API ${error}`)
-        throw error;
+        return error.response.data;
     }
 }
 
@@ -114,7 +114,21 @@ export const getCommunities = async(data)=>{
     }
 
     catch(error){
-        console.error(`Error in calling Get Communities API ${error}`)
+        console.error(`Error calling Get Communities API ${error?.message || error}`)
+        return error.response.data;
+    }
+}
+
+export const getIndividualCommunity = async(data) => {
+    try{
+        const response = await networkClient.get(`/community/${data.communitySlug}`,data);
+        return response.data;
+        console.log(`[*] Calling the Specific Community API ${response?.data || response}`)
+
+    }
+    catch(error){
+        console.error(`Error calling Get Specific Community API ${error?.message || error}`);
+        return error.response.data;
     }
 }
 

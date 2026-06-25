@@ -20,7 +20,7 @@ function Navbar(){
                 </div>
 
                 <div className={styles.searchbar}>
-                    <input className={styles.navbarSearch} type="text" placeholder="Search Posts, Communities, People"></input>
+                    <input className={styles.navbarSearch} id="navbarSearch" type="text" placeholder="Search Posts, Communities, People"></input>
                 </div>
                 </div>
 

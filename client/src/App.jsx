@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Chatroom from "./pages/Chatrooms/Chatroom";
 import MyProfile from "./pages/MyProfile/myProfile";
 import UserDevices from "./pages/UserDevices/UserDevices";
+import CommunityPage from './pages/CommunityPage/CommunityPage'
 
 function App() {
   return (
@@ -46,6 +47,18 @@ function App() {
 
         }
         />
+
+        {/* Community Post */}
+
+         <Route path="/community/:communitySlug" element={
+          <ProtectedRoute>
+          <CommunityPage/>
+          </ProtectedRoute>
+
+        }
+        />
+
+  
 
     </Routes>
     </BrowserRouter >
