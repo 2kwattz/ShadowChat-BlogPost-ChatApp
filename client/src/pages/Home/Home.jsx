@@ -188,9 +188,9 @@ console.log("COMMUNITY LIST ",communityList)
 
                 <div className={styles.chatroomCard} key={item?.community_id ?? item?.id ?? index}>
                   <p className={styles.chatroomName}>{item?.community_name}</p>
-                  <p style={{color:"white"}}>{item?.community_description}</p>
-                  <p style={{color:"white"}}>{item?.member_count}</p>
-                  <p style={{color:"white"}}>{item?.community_rules}</p>
+                  <p style={{color:"white"}}>Description: {item?.community_description}</p>
+                  <p style={{color:"white"}}>Members : {item?.member_count}</p>
+                  {/* <p style={{color:"white"}}>{item?.community_rules}</p> */}
 
                   <button className="cyanButton">Join Now</button>
                   </div>
@@ -207,7 +207,11 @@ console.log("COMMUNITY LIST ",communityList)
 
           </section>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsam possimus iusto id at culpa aliquam! Error cum tenetur pariatur quidem, eligendi recusandae repellendus accusantium, quos repellat illo, eum deleniti?
-          
+
+          <section className="communityPostsTrending">
+
+            
+          </section>
           </main>
         <aside className="feedRight">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus aliquid modi omnis. Esse dolores velit, harum dolore ipsa saepe totam.</aside>
 
