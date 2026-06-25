@@ -15,27 +15,27 @@ function Home() {
 
   const [communityList, setCommunityList] = useState([])
 
-  async function fetchCommunities(){
+  async function fetchCommunities() {
     let response;
-    try{
+    try {
       response = await getCommunities();
       setCommunityList(Array.isArray(response?.data) ? response.data : [])
       console.log("API RESPONSE", response?.data)
       return response;
 
     }
-    catch(error){
-      console.log("Error in calling Fetch communities ",error?.response?.data || error?.response)
+    catch (error) {
+      console.log("Error in calling Fetch communities ", error?.response?.data || error?.response)
     }
   }
   useEffect(() => {
-fetchCommunities()
-  },[])
+    fetchCommunities()
+  }, [])
 
 
-useEffect(()=>{
-console.log("COMMUNITY LIST ",communityList)
-},[communityList])
+  useEffect(() => {
+    console.log("COMMUNITY LIST ", communityList)
+  }, [communityList])
   return (
     <React.Fragment>
       <Navbar />
@@ -152,68 +152,96 @@ console.log("COMMUNITY LIST ",communityList)
               </ul>
             </div>
 
-            <hr style={{ marginTop: 15,border: "1px solid rgba(255,255,255,0.06)"}}></hr>
+            <hr style={{ marginTop: 15, border: "1px solid rgba(255,255,255,0.06)" }}></hr>
 
-             <h3 style={{marginTop: 15}} className="heading4">INFO</h3>
+            <h3 style={{ marginTop: 15 }} className="heading4">INFO</h3>
 
-              <ul>
-                <li>About</li>
-                <li>Contact</li>
-                <li>Guidelines</li>
-                <li>Chatroom</li>
-                <li>Popular</li>
-              </ul>
+            <ul>
+              <li>About</li>
+              <li>Contact</li>
+              <li>Guidelines</li>
+              <li>Chatroom</li>
+              <li>Popular</li>
+            </ul>
           </aside>
-          
+
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Delectus accusantium odit cum ullam quisquam saepe suscipit molestias maiores, nisi animi natus tempora deserunt ipsum nam incidunt, nobis autem alias dicta similique eius! Eos nulla aperiam explicabo, quia unde accusamus odio.
         </section>
         <main className="feedCenter">
 
-          
+
           <section className={styles.chatroomSection}>
 
             <div className={styles.subheading}>
 
-          <h4 className="heading4" style={{color:"white"}}>Live Chatrooms</h4>
+              <h4 className="heading4" style={{ color: "white" }}>Live Chatrooms</h4>
 
-          <h5 className="textColorWhite3">View More</h5>
+              <h5 className="textColorWhite3">View More</h5>
             </div>
 
-          <div className={styles.chatroomCards}>
+            <div className={styles.chatroomCards}>
 
-            {communityList?.length > 0 ? (
-              communityList?.map((item,index)=>{
+              {communityList?.length > 0 ? (
+                communityList?.map((item, index) => {
 
-                return(
+                  return (
 
-                <div className={styles.chatroomCard} key={item?.community_id ?? item?.id ?? index}>
-                  <p className={styles.chatroomName}>{item?.community_name}</p>
-                  <p style={{color:"white"}}>Description: {item?.community_description}</p>
-                  <p style={{color:"white"}}>Members : {item?.member_count}</p>
-                  {/* <p style={{color:"white"}}>{item?.community_rules}</p> */}
+                    <div className={styles.chatroomCard} key={item?.community_id ?? item?.id ?? index}>
+                      <p className={styles.chatroomName}>{item?.community_name}</p>
+                      <p style={{ color: "white" }}>Description: {item?.community_description}</p>
+                      <p style={{ color: "white" }}>Members : {item?.member_count}</p>
+                      {/* <p style={{color:"white"}}>{item?.community_rules}</p> */}
 
-                  <button className="cyanButton">Join Now</button>
-                  </div>
-                )
-              })
-            ): (<p style={{color:"white"}}>No Communities Found</p>)}
+                      <button className="cyanButton">Join Now</button>
+                    </div>
+                  )
+                })
+              ) : (<p style={{ color: "white" }}>No Communities Found</p>)}
 
-          </div>
+            </div>
 
           </section>
 
           <section className="alert">
-            <p style={{color:"white"}}>Browsing as a guest. Sign Up free to post, vote and join chatrooms</p>
+            <p style={{ color: "white" }}>Browsing as a guest. Sign Up free to post, vote and join chatrooms</p>
 
           </section>
           Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque ipsam possimus iusto id at culpa aliquam! Error cum tenetur pariatur quidem, eligendi recusandae repellendus accusantium, quos repellat illo, eum deleniti?
 
           <section className="communityPostsTrending">
 
-            
+
           </section>
-          </main>
-        <aside className="feedRight">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus aliquid modi omnis. Esse dolores velit, harum dolore ipsa saepe totam.</aside>
+        </main>
+        <aside className="feedRight">
+
+          <div className="asideCard">
+            <h3 className="heading4">QUICK LINKS</h3>
+
+            <div className="rightSidebar">
+              <ul>
+                <li>All Time Popular</li>
+                <li>Ask Shadow Chat AI</li>
+                <li>Guidelines</li>
+                <li>Contact</li>
+                <li>F.A.Q</li>
+              </ul>
+            </div>
+
+            <hr style={{ marginTop: 15, border: "1px solid rgba(255,255,255,0.06)" }}></hr>
+
+            <h3 style={{ marginTop: 15 }} className="heading4">INFO</h3>
+
+            <ul>
+              <li>About</li>
+              <li>Contact</li>
+              <li>Guidelines</li>
+              <li>Chatroom</li>
+              <li>Popular</li>
+            </ul>
+          </div>
+
+        </aside>
 
       </section>
 

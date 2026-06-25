@@ -139,6 +139,7 @@ body{
     border-width: 1px;
     padding: 7px 20px;
     border-radius: 40px;
+    cursor: pointer;
 }
 
 .purpleGradientButton {
@@ -148,6 +149,7 @@ body{
     border-radius: 40px;
     border-width: 0px;
     color: var(--text-white-1);
+    cursor: pointer;
 }
 
 .purpleGradientButton:hover {
@@ -155,6 +157,7 @@ body{
     transform: translateY(-1px);
     box-shadow: 0 8px 32px rgba(167, 139, 250, 0.48);
     transition: all 0.18s;
+    cursor: pointer;
 }
 
 .transparentButton:hover {
@@ -176,7 +179,16 @@ body{
     flex-direction: row;
     align-items: center;
     gap: 10px;
+    cursor: pointer;
 
+}
+
+.cyanButton:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+       box-shadow: 0 6px 28px rgba(34, 211, 238, 0.32);
+    transition: all 0.18s;
+    cursor: pointer;
 }
 
 .greyButton {
@@ -191,6 +203,7 @@ body{
     align-items: center;
     justify-content: center;
     gap:10px;
+    cursor: pointer;
 }
 
 .greyButton:hover{
@@ -239,7 +252,6 @@ color: var(--cyan-secondary);
 }
 
 .feedLeft{
-    background-color: brown;
     padding: 20px;
     border: 1px solid var(--border-secondary-dark);
     gap: 10px;
@@ -254,7 +266,9 @@ color: var(--cyan-secondary);
 }
 
 .feedRight{
-    background-color: cadetblue;
+  padding: 20px;
+    border: 1px solid var(--border-secondary-dark);
+    gap: 10px;
 }
 
 .feedCenter{
@@ -263,6 +277,14 @@ color: var(--cyan-secondary);
 }
 
 .leftAbout{
+    background: linear-gradient(160deg,rgba(13,17,33,0.98),rgba(9,12,23,0.96));
+    border: 1px solid var(--border-secondary-dark);
+    color: var(--text-white-3);
+    padding: 20px;
+    border-radius: 24px;
+}
+
+.asideCard{
     background: linear-gradient(160deg,rgba(13,17,33,0.98),rgba(9,12,23,0.96));
     border: 1px solid var(--border-secondary-dark);
     color: var(--text-white-3);

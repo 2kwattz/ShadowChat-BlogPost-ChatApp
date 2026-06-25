@@ -5,8 +5,6 @@ import { getChatrooms } from "../../services/api";
 function Chatroom() {
 
   // States
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
 
 
 
