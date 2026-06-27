@@ -1583,6 +1583,8 @@ router.post("/deleteAccount", authMiddleware, async function (req, res) {
     }
     catch (error) {
 
+        console.log("[*] Error in Delete Account Route ",error?.message || error)
+
         res.status(500).json({
             status: false,
             message: "Internal Server Error"
