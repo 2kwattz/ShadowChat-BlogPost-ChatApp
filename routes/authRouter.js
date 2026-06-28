@@ -1420,9 +1420,47 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
             });
         }
 
+        // Checking username from database
 
+        const searchUsernameQuery = `SELECT userId FROM users WHERE username = ? LIMIT 1`
 
+        const [usernameResult] = await pool.execute(searchUsernameQuery,[username]);
 
+        const takenUsernameUserId = usernameResult[0].userId;
+
+        if(takenUsernameUserId == userId){
+
+            return res.status(400).json({
+                status: false,
+                message: "Your new username cannot be your current username"
+            })
+        }
+
+        if(usernameResult.length !== 0){
+            return res.status(409).json({
+                status: false,
+                message: "Username already exists. Please choose a different username "
+            })
+        }
+
+        // Update username query if all validations cleared
+        const updateQuery = `UPDATE users SET username = ? where userId = ?`;
+
+        const [updateUsername] = await pool.execute(updateQuery,[username,userId]);
+
+        if(updateUsername.changedRows !== 0){
+            return res.status(200).json({
+                status:true,
+                message: "Username updated successfully"
+
+            })
+        }
+        else{
+            return res.status(500).json({
+                status: false,
+                message: "Cannot update username. Please try again later"
+            })
+        }
 
     }
     catch (error) {
