@@ -84,6 +84,7 @@ async function startServer() {
                 })
             })
         );
+        
         app.use("/api-docs",
             authMiddleware,
             swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware

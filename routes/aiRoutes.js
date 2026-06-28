@@ -27,7 +27,9 @@ router.post("/askllm", authMiddleware,async function(req,res){
 
     try{
         console.log("[*] Request Sent to QWEN2.5 7B Model");
-        const query = req.body.query;
+        let query = req.body.query;
+
+        query = query.toLowerCase().trim();
 
         if(!query){
             return res.status(400).json({
