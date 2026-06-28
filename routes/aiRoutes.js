@@ -2,7 +2,8 @@ const express = require("express"); // NodeJs Framework
 const router = express.Router(); // Express Router
 
 const redisClient = require("../redis/redisClient"); // Caching
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/authMiddleware"); // Auth Middleware
+const aiRateLimiting = require("../middlewares/aiRateLimiting");
 
 const {askQwen2} = require("../llmClient/ollamaService");
 const cleanXSS = require("../utils/xssCleaner");
@@ -23,7 +24,7 @@ function isPromptInjection(text) {
 
 // Routes
 
-router.post("/askllm", authMiddleware,async function(req,res){
+router.post("/askllm",aiRateLimiting, authMiddleware,async function(req,res){
 
     try{
         console.log("[*] Request Sent to QWEN2.5 7B Model");

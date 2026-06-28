@@ -1,3 +1,5 @@
+// IGNORE THIS MIDDLEWARE FOR NOW, REDIS BASED BRUTEFORCE PREVENTER IS ALREADY IN PLACE FOR LOGIN PAGE
+
 const redisClient = require('../redis/redisClient'); // Redis Client for caching
 
 const MAX_ATTEMPTS = 10; // Max Login Attempts
