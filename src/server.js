@@ -15,6 +15,7 @@ const morgan = require("morgan"); // Requests Logger
 const winston = require("winston"); // Overall Logger
 const swaggerUi = require("swagger-ui-express"); // Swagger UI
 const swaggerSpec = require("../config/swagger"); // Swagger Configuration
+const authMiddleware = require("../middlewares/authMiddleware")
 
 
 // Custom Middlewares
@@ -74,7 +75,9 @@ async function startServer() {
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
         app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
-        app.use("/api-docs",swaggerUi.serve,swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware
+        app.use("/api-docs",
+            authMiddleware,
+            swaggerUi.serve,swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware
 
         // Multer File Storage Configuration
 
