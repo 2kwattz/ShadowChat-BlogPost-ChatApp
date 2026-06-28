@@ -258,6 +258,13 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
 
         const communitySlug = req.params.communitySlug.trim().toLowerCase();
 
+        if(!communitySlug){
+            return res.status(400).json({
+                status: false,
+                message: "Valid community name is required"
+            })
+        }
+
         console.log(`[*] Community Slug from backend `,communitySlug)
         if (!slugTestRegex.test(communitySlug)) {
             return res.status(400).json({
