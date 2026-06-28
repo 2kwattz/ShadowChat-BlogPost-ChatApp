@@ -9,7 +9,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 
 // Create Chatroom
 
-router.post("/create", async function (req, res) {
+router.post("/create", authMiddleware,async function (req, res) {
     try {
         const cleanedBodyData = cleanXSS(req.body);
 

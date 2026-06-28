@@ -74,10 +74,19 @@ async function startServer() {
         app.use(sqlInjectionGuard); // Additional Layer of SQL Injection Defence Mechanism & IP Logger
         app.use(fakeServerHeaders); // Spoof headers. Confuses Attacker
         app.use(hpp()); // Prevents HTTP Parameter Pollution
-        app.use("/graphql", expressMiddleware(apolloServer)) // GraphQl Middleware
+        // Option A — keep authMiddleware in the chain, bridge via context
+        app.use(
+            "/graphql",
+            authMiddleware,                         // blocks unauthenticated → 401
+            expressMiddleware(apolloServer, {
+                context: async ({ req }) => ({
+                    user: req.user                      // now resolvers can use ctx.user
+                })
+            })
+        );
         app.use("/api-docs",
             authMiddleware,
-            swaggerUi.serve,swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware
+            swaggerUi.serve, swaggerUi.setup(swaggerSpec)); // Swagger Docs middleware
 
         // Multer File Storage Configuration
 

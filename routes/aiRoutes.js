@@ -7,6 +7,20 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const {askQwen2} = require("../llmClient/ollamaService");
 const cleanXSS = require("../utils/xssCleaner");
 
+function isPromptInjection(text) {
+    const patterns = [
+        /\b(ignore|disregard|forget|override)\b.{0,80}\b(instruction|system|prompt)\b/i,
+
+        /\b(you are now|act as|pretend to be|roleplay as)\b/i,
+
+        /\b(jailbreak|developer mode|DAN mode|unrestricted mode)\b/i,
+
+        /\b(do not follow|stop following)\b.{0,50}\b(rules|instructions)\b/i
+    ];
+
+    return patterns.some(p => p.test(text));
+}
+
 // Routes
 
 router.post("/askllm", authMiddleware,async function(req,res){
@@ -21,6 +35,14 @@ router.post("/askllm", authMiddleware,async function(req,res){
                 message: "Invalid Query"
             })
         }
+
+        if(isPromptInjection(query)){
+            return res.status(400).json({
+                status:false,
+                message: "Prompt Injection was detected and blocked",
+                ipAddress: req.ip
+
+            })}
 
         const response = await askQwen2(query)
 
