@@ -16,7 +16,7 @@ const MAX_OUTPUT_TOKENS = 1024;
 
 async function askQwen2(prompt) {
     try {
-
+        
         console.log(`[*] Calling Qwen 2`);
         console.log("[*] Qwen2 Query ", prompt)
         const response = await axios.post(
@@ -24,15 +24,21 @@ async function askQwen2(prompt) {
             {
                 model: "qwen2.5-coder:7b",
                 system: SYSTEM_PROMPT,
-                num_predict: MAX_OUTPUT_TOKENS,
+                options: {
+                    num_predict: MAX_OUTPUT_TOKENS
+                },
                 prompt,
                 stream: false
             });
+            
+            console.log("FORMAT OF AI RESPONSE DATA ", response.data)
 
-        return response.data.response;
+        return response.data;
     }
     catch (error) {
-        console.log("[*] Error Running Ollama Qwen2.5-coder:7b model.  ", error)
+        console.log("[*] Error Running Ollama Qwen2.5-coder:7b model.  ", error);
+        console.log("FORMAT OF AI RESPONSE DATA ", error.response.data)
+        return error.response.data;
 
     }
 }
@@ -52,10 +58,14 @@ async function askQwen3(prompt) {
                 num_predict: MAX_OUTPUT_TOKENS,
                 stream: false
             });
+
+        console.log("FORMAT OF AI RESPONSE DATA ", response.data)
+
         return response.data.response;
     }
     catch (error) {
-        console.log("[*] Error Running Ollama Qwen2.5-coder:7b model.  ", error)
+        console.log("[*] Error Running Ollama Qwen2.5-coder:7b model.  ", error);
+        return error.response.data;
     }
 }
 

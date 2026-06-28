@@ -46,12 +46,26 @@ router.post("/askllm", authMiddleware,async function(req,res){
 
             })}
 
-        const response = await askQwen2(query)
+        const response = await askQwen2(query);
 
-        if(response){
+        if(!response?.response || typeof response?.response !== "string" ){
+            return res.status(500).json({
+                    status:false,
+                    message: "Ai Service returned invalid response"
+                })
+            }
+
+        if(response?.response){
             return res.status(200).json({
                 status:true,
-                message:response
+                message:response.response,
+                model: response.model,
+                createdAt: response.created_at,
+                loadDuration: response.load_duration,
+                totalDuration: response.totalDuration,
+                promptEvalDuration: response.prompt_eval_duration,
+                eval_duration: response.eval_duration
+
             })
         }
         
@@ -64,6 +78,10 @@ router.post("/askllm", authMiddleware,async function(req,res){
     }
     catch(error){
          console.log("[*] Error sending request to QWEN2.5 7B Model", error);
+           return res.status(500).json({
+                status:false,
+                message:"Internal Server Error"
+            })
     }
 })
 
