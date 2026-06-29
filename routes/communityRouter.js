@@ -246,7 +246,7 @@ router.get("/all", async function (req, res) {
             data: communities
         }
 
-        await redisClient.setEx(redisCacheKey,1200,JSON.stringify(response))
+        await redisClient.setex(redisCacheKey,1200,JSON.stringify(response))
 
         res.status(200).json(response)
 
@@ -313,7 +313,7 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
         if (result.length === 0) {
             return res.status(404).json({
                 status: false,
-                message: "Unable to preview community"
+                message: "Community not found"
             })
         }
         const community = result[0];
@@ -330,7 +330,8 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
             memberCount: community.member_count,
         }
 
-        await redisClient.setEx(communitySlugCacheKey,7000,JSON.stringify(response))
+        console.log("[*] Community Details fetched from DB")
+        await redisClient.setex(communitySlugCacheKey,7000,JSON.stringify(response));
 
         return res.status(200).json(response)
     }
