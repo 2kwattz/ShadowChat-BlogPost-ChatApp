@@ -208,7 +208,20 @@ router.get("/all", async function (req, res) {
         );
         const offset = (page - 1) * limit;
 
+        // Redis Cache Key
+        const redisCacheKey = `all_communities:${page}:${limit}`;
+        const cachedCommunities = await redisClient.get(redisCacheKey);
+
+        if(cachedCommunities){
+
+            console.log("REDIS CACHE HIT")
+            return res.json(JSON.parse(cachedCommunities));
+        }
+
+
         // Fetching Communities
+
+        console.log("[*] No Redis Cache. Hitting DB")
 
         const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM communities`);
 
@@ -224,14 +237,18 @@ router.get("/all", async function (req, res) {
 
         const totalPages = Math.ceil(totalCommunities / limit);
 
-        res.status(200).json({
+        const response = {
             status: true,
             page,
             limit,
             totalCommunities,
             totalPages,
             data: communities
-        })
+        }
+
+        await redisClient.setex(redisCacheKey,600,JSON.stringify(response))
+
+        res.status(200).json(response)
 
     }
     catch (error) {
