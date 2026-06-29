@@ -221,7 +221,7 @@ router.get("/all", async function (req, res) {
 
         // Fetching Communities
 
-        console.log("[*] No Redis Cache. Hitting DB")
+        console.log("[*] No Redis Cache. Hitting DB");
 
         const [countRows] = await pool.query(`SELECT COUNT(*) AS total FROM communities`);
 
@@ -252,6 +252,8 @@ router.get("/all", async function (req, res) {
 
     }
     catch (error) {
+
+        console.log("[*] Error in /all community router ",error?.message || error)
 
         res.status(500).json({
             status: false,
