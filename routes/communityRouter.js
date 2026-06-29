@@ -246,7 +246,7 @@ router.get("/all", async function (req, res) {
             data: communities
         }
 
-        await redisClient.setex(redisCacheKey,600,JSON.stringify(response))
+        await redisClient.setEx(redisCacheKey,1200,JSON.stringify(response))
 
         res.status(200).json(response)
 
@@ -275,7 +275,7 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
         const slugTestRegex = /^[A-Za-z][A-Za-z0-9_]*$/;
 
 
-        const communitySlug = req.params.communitySlug.trim().toLowerCase();
+        const communitySlug = req.params?.communitySlug?.trim()?.toLowerCase();
 
         if(!communitySlug){
             return res.status(400).json({
@@ -292,32 +292,34 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
             })
         }
 
+        // Fetching Community Data from Redis 
+        const communitySlugCacheKey = `communityDetails:${communitySlug}`;
+
+        const cachedCommunityCache = await redisClient.get(communitySlugCacheKey);
+
+        if(cachedCommunityCache){
+
+            console.log("[*] Community Details Cache Hit")
+
+            return res.json(JSON.parse(cachedCommunityCache))
+        }
+
         const fetchCommunityQuery = `SELECT * FROM communities WHERE normalized_slug = ? LIMIT 1`;
 
         const [result] = await pool.execute(fetchCommunityQuery, [communitySlug]);
 
         console.log("[*] Result from SQL Query ",result)
 
-        if (!result) {
+        if (result.length === 0) {
             return res.status(404).json({
                 status: false,
-                message: "Community not found"
+                message: "Unable to preview community"
             })
         }
-
-        if (result.length > 50) {
-
-            return res.status(409).json({
-                status: false,
-                message: "Community name cannot be more than 50 characters"
-            })
-
-        }
-
         const community = result[0];
 
-        return res.status(200).json({
-            status: true,
+        const response = {
+             status: true,
             communityName: community.community_name,
             communityDescription: community.community_description,
             communityRules: community.community_rules,
@@ -326,7 +328,11 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
             communityAdmin: community.community_admin_id,
             communitySlug: community.community_slug,
             memberCount: community.member_count,
-        })
+        }
+
+        await redisClient.setEx(communitySlugCacheKey,7000,JSON.stringify(response))
+
+        return res.status(200).json(response)
     }
     catch (error) {
         console.log("[*] Error in fetching community name ", error);
