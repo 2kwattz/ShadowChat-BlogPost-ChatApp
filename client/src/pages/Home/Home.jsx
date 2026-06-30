@@ -174,7 +174,7 @@ function Home() {
 
             <div className={styles.subheading}>
 
-              <h4 className="heading4" style={{ color: "white" }}>Live Chatrooms</h4>
+              <h4 className="heading4" style={{ color: "white" }}>Live Communities</h4>
 
               <h5 className="textColorWhite3">View More</h5>
             </div>

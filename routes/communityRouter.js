@@ -328,6 +328,7 @@ router.get("/:communitySlug", authMiddleware, async function (req,res) {
             communityAdmin: community.community_admin_id,
             communitySlug: community.community_slug,
             memberCount: community.member_count,
+            createdAt: community.created_at
         }
 
         console.log("[*] Community Details fetched from DB")
