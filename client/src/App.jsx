@@ -11,6 +11,7 @@ import Chatroom from "./pages/Chatrooms/Chatroom";
 import MyProfile from "./pages/MyProfile/myProfile";
 import UserDevices from "./pages/UserDevices/UserDevices";
 import CommunityPage from './pages/CommunityPage/CommunityPage'
+import CreateCommunity from "./pages/CreateCommunity/CreateCommunity";
 
 function App() {
   return (
@@ -53,6 +54,16 @@ function App() {
          <Route path="/community/:communitySlug" element={
           <ProtectedRoute>
           <CommunityPage/>
+          </ProtectedRoute>
+
+        }
+        />
+
+        {/* Create Community */}
+
+          <Route path="/createCommunity" element={
+          <ProtectedRoute>
+          <CreateCommunity/>
           </ProtectedRoute>
 
         }
