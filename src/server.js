@@ -77,10 +77,10 @@ async function startServer() {
         // Option A — keep authMiddleware in the chain, bridge via context
         app.use(
             "/graphql",
-            authMiddleware,                         // blocks unauthenticated → 401
+            authMiddleware, // blocks unauthenticated → 401
             expressMiddleware(apolloServer, {
                 context: async ({ req }) => ({
-                    user: req.user                      // now resolvers can use ctx.user
+                    user: req.user // now resolvers can use ctx.user
                 })
             })
         );

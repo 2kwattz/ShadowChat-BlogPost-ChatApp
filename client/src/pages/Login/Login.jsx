@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { userLogin } from "../../services/api";
 import { useAuth } from "../../context/authContext";
-import Navbar from "../../components/navbar/navbar";
+import Navbar from "../../components/Navbar/navbar";
 
 const styles = './login.css';
 
