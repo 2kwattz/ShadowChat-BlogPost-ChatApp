@@ -13,6 +13,9 @@ function Navbar(){
     
     return (
             <div className={styles.navbarWrapper}>
+
+                {/* Left Logo and searchbar */}
+
                 <div className={styles.leftWrapper}>
 
                 <div className={styles.logoWrapper}>
@@ -24,12 +27,14 @@ function Navbar(){
                 </div>
                 </div>
 
+                {/* Navbar */}
+
                 <div className={styles.rightWrapper}>
                     <ul className={styles.navlinksList}>
-                        <li className={styles.navlinks}>Home</li>
-                        <li className={styles.navlinks}>Communities</li>
-                        <li className={styles.navlinks}>Chatroom</li>
-                        <li className={styles.navlinks}>About</li>
+                        <li className={styles.navlinks} onClick={()=> navigate("/")}>Home</li>
+                        <li className={styles.navlinks} onClick={()=> navigate("/")}>Communities</li>
+                        <li className={styles.navlinks} onClick={()=> navigate("/")}>Chatroom</li>
+                        <li className={styles.navlinks} onClick={()=> navigate("/")}>About</li>
                     </ul>
 
                     <div className={styles.buttonsWrapper}>
