@@ -20,14 +20,14 @@
 
     /* Border Colors */
     --border-primary-dark: rgba(255, 255, 255, 0.055);
-    --border-secondary-dark: rgba(255,255,255,0.07);
+    --border-secondary-dark: rgba(255, 255, 255, 0.07);
     --border-primary-purple: rgba(167, 139, 250, 0.30);
 
     /* Surface Colors */
     --surface-primary: #0d1121;
     --surface-secondary: #101525;
     --surface-tertiary: #141a2e;
-    --surface-light: rgba(255,255,255,0.045);
+    --surface-light: rgba(255, 255, 255, 0.045);
 
     /* Dark Pink Colors */
     --darkpink-primary: #201025;
@@ -80,7 +80,7 @@ html {
     scroll-behavior: smooth
 }
 
-body{
+body {
     background-color: var(--bg-dark-primary);
 }
 
@@ -101,20 +101,20 @@ body{
 
 /* Heading 4 */
 
-.heading4{
+.heading4 {
     font-size: 1rem;
-    font-family: 'JetBrains Mono',monospace;
+    font-family: 'JetBrains Mono', monospace;
 }
 
-.textColorWhite1{
+.textColorWhite1 {
     color: var(--text-white-1)
 }
 
-.textColorWhite2{
+.textColorWhite2 {
     color: var(--text-white-2)
 }
 
-.textColorWhite3{
+.textColorWhite3 {
     color: var(--text-white-3)
 }
 
@@ -124,7 +124,7 @@ body{
     background: linear-gradient(135deg, var(--amber-primary) 0%, var(--amber-secondary) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    
+
 
 }
 
@@ -186,15 +186,15 @@ body{
 .cyanButton:hover {
     filter: brightness(1.15);
     transform: translateY(-1px);
-       box-shadow: 0 6px 28px rgba(34, 211, 238, 0.32);
+    box-shadow: 0 6px 28px rgba(34, 211, 238, 0.32);
     transition: all 0.18s;
     cursor: pointer;
 }
 
 .greyButton {
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     color: var(--text-white-2);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(12px);
     padding: 13px 26px;
     border-radius: 80px;
@@ -202,33 +202,33 @@ body{
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap:10px;
+    gap: 10px;
     cursor: pointer;
 }
 
-.greyButton:hover{
-background-color: rgba(255,255,255,0.08);
-color: var(--cyan-secondary);
+.greyButton:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--cyan-secondary);
 }
 
 /* Alert Box */
 
-.alert{
+.alert {
     margin-top: 20px;
     padding: 20px 15px;
-    background: linear-gradient(90deg,rgba(34,211,238,0.04),rgba(167,139,250,0.04));
-    border: 1px solid rgba(255,255,255,0.07);
+    background: linear-gradient(90deg, rgba(34, 211, 238, 0.04), rgba(167, 139, 250, 0.04));
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 18px;
     color: var(--text-white-1);
-    
+
 }
 
 
 /* Input Tags */
 
-.inputPrimary{
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.09);
+.inputPrimary {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
     padding: 6px;
     margin: 0px 15px;
     transition: all 0.2s;
@@ -242,7 +242,7 @@ color: var(--cyan-secondary);
 
 /* Main Feed */
 
-.mainFeed{
+.mainFeed {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr;
     /* grid-template-rows: 100vh; */
@@ -251,41 +251,41 @@ color: var(--cyan-secondary);
     margin: 0px 110px;
 }
 
-.feedLeft{
+.feedLeft {
     padding: 20px;
     border: 1px solid var(--border-secondary-dark);
     gap: 10px;
 }
 
-.feedLeft ul{
+.feedLeft ul {
     list-style-type: none;
 }
 
-.feedLeft ul li{
+.feedLeft ul li {
     margin-top: 9px;
 }
 
-.feedRight{
-  padding: 20px;
+.feedRight {
+    padding: 20px;
     border: 1px solid var(--border-secondary-dark);
     gap: 10px;
 }
 
-.feedCenter{
+.feedCenter {
     padding: 15px 30px;
 
 }
 
-.leftAbout{
-    background: linear-gradient(160deg,rgba(13,17,33,0.98),rgba(9,12,23,0.96));
+.leftAbout {
+    background: linear-gradient(160deg, rgba(13, 17, 33, 0.98), rgba(9, 12, 23, 0.96));
     border: 1px solid var(--border-secondary-dark);
     color: var(--text-white-3);
     padding: 20px;
     border-radius: 24px;
 }
 
-.asideCard{
-    background: linear-gradient(160deg,rgba(13,17,33,0.98),rgba(9,12,23,0.96));
+.asideCard {
+    background: linear-gradient(160deg, rgba(13, 17, 33, 0.98), rgba(9, 12, 23, 0.96));
     border: 1px solid var(--border-secondary-dark);
     color: var(--text-white-3);
     padding: 20px;
@@ -294,7 +294,7 @@ color: var(--cyan-secondary);
 
 /* Community Cover Sample */
 
-.communityWrapper{
+.communityWrapper {
     background-image: url("../assets/sampleCover.jpg");
     background-repeat: no-repeat;
     background-position: center;
@@ -302,56 +302,80 @@ color: var(--cyan-secondary);
     height: 250px;
 }
 
-.communityHeader{
+.communityHeader {
     padding: 0px 120px;
 
 }
 
-.communityHeaderLeft{
+.communityHeaderLeft {
     display: flex;
     flex-direction: column;
 }
 
-#communityName{
+#communityName {
     color: white;
     font-size: 1.3rem;
     font-weight: 800;
     position: relative;
-    padding:0px;
-    top:-20px;
+    padding: 0px;
+    top: -20px;
 }
-#communitySlug{
+
+#communitySlug {
     color: var(--text-white-2);
     font-size: 0.9rem;
     font-weight: 300;
     position: relative;
-    padding:0px;
-    top:-20px;
+    padding: 0px;
+    top: -20px;
 }
 
-#communityHeaderIcon{
+#communityHeaderIcon {
     position: relative;
     top: -40px;
     border-radius: 12px;
 }
 
-.communityIconWrapper{
-border: 2px solid black;
+.communityIconWrapper {
+    border: 2px solid black;
 }
 
-#communityDescription{
+#communityDescription {
     color: var(--text-white-2);
     font-size: 0.8rem;
     width: 50%;
 }
 
-.headerBottom{
+.headerBottom {
     display: flex;
     flex-direction: row;
-    gap:10px;
+    gap: 10px;
 }
 
-.headerBottomItem{
+.headerBottomItem {
     color: var(--text-white-2);
 }
 
+.two-col-container {
+    display: grid;
+    border: 2px solid white;
+    grid-template-columns: 1fr 1fr;
+    margin: 0px 110px;
+    gap: 10px;
+}
+
+.header {
+    margin: 10px 110px;
+    gap: 10px;
+    color: var(--text-white-3);
+    margin-top: 30px;
+    font-size: 0.8rem;
+}
+
+.backButton{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap:10px;
+}

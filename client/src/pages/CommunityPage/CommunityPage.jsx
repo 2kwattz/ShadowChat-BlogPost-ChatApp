@@ -10,10 +10,10 @@ const CommunityPage = () => {
     const [communityDetails, setCommunityDetails] = useState(null);
 
     const [communityName, setCommunityName] = useState(null);
-    const [communityUsername,setCommunityUsername] = useState(null)
-    const [communityDescription,setCommunityDescription] = useState(null);
-    const [communityMembers,setCommunityMembers] = useState(null);
-    const [communityCreatedAt,setCommunityCreatedAt] = useState(null);
+    const [communityUsername, setCommunityUsername] = useState(null)
+    const [communityDescription, setCommunityDescription] = useState(null);
+    const [communityMembers, setCommunityMembers] = useState(null);
+    const [communityCreatedAt, setCommunityCreatedAt] = useState(null);
 
     const { communitySlug } = useParams();
 
@@ -23,16 +23,16 @@ const CommunityPage = () => {
         const response = await getIndividualCommunity({ communitySlug });
 
         console.log("Community Details", response);
-        console.log("Community Details",response)
+        console.log("Community Details", response)
 
         setCommunityDetails(response);
         setCommunityName(response.communityName);
         setCommunityUsername(response.communitySlug);
         setCommunityDescription(response.communityDescription);
         setCommunityMembers(response.memberCount);
-        setCommunityCreatedAt(response.setCommunityCreatedAt);
+        setCommunityCreatedAt(response.createdAt);
 
-        console.log("COM MEMBER COUNT ",communityMembers)
+        console.log("COM MEMBER COUNT ", communityMembers)
 
         return response;
     }
@@ -45,15 +45,13 @@ const CommunityPage = () => {
         <section className="communityPage">
             <Navbar></Navbar>
 
-            {!communityDetails?.status && 
-            <div style={{ color: "white", textAlign:"center",display:"flex",alignItems:"center",justifyContent:"center",height:"80vh" }}>
-                <p>Community Not Found</p> 
-            </div>
+            {!communityDetails?.status &&
+                <div style={{ color: "white", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", height: "80vh" }}>
+                    <p>Community Not Found</p>
+                </div>
             }
 
-            {
-                communityDetails?.status &&
-
+            {communityDetails?.status &&
                 <>
                     <div className="communityWrapper">
                         <p>test</p>
@@ -67,17 +65,17 @@ const CommunityPage = () => {
                             <span id="communityName">{communityName}</span>
                             <span id="communitySlug">r/{communityUsername}</span>
                             <p id="communityDescription">
-                               {communityDescription}
+                                {communityDescription}
                             </p>
 
                             <div className="headerBottom">
                                 <span className="headerBottomItem">
-                                    {communityMembers == 1?`${communityMembers} member`:`${communityMembers} members`}
-                                    </span><br></br>
+                                    {communityMembers == 1 ? `${communityMembers} member` : `${communityMembers} members`}
+                                </span><br></br>
 
-                                       <span className="headerBottomItem">
-                                    Founded: {communityCreatedAt} 
-                                    </span>
+                                <span className="headerBottomItem">
+                                    Founded: {communityCreatedAt}
+                                </span>
                             </div>
 
                         </div>

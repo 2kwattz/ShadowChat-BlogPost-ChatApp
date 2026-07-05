@@ -1,8 +1,8 @@
 import { useState } from "react";
-import "./chatroom.css";
+import "./CreateChatroom.css";
 import { getChatrooms } from "../../services/api";
 
-function createChatroom() {
+function CreateChatroom() {
 
   // Login Function
   const handleLogin = async (e) => {
@@ -31,11 +31,11 @@ function createChatroom() {
 
   return (
 
-    <div className="login-container">
+    <div className="create-chatroom-container">
 
       <form
-        className="login-form"
-        onSubmit={handleLogin}
+        className="create-chatroom-form"
+        onSubmit={handleCreateChatroom}
       >
 
         <h1>Login</h1>
