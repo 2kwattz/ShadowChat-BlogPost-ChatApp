@@ -1610,9 +1610,9 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
     }
 });
 
-// Reset Password
+// Forgot Password
 
-router.post("/resetPassword", async function (req, res) {
+router.post("/forgotPassword", async function (req, res) {
 
     try {
         console.log("[*] User hit POST/ Reset Password");
@@ -1675,6 +1675,17 @@ router.post("/resetPassword", async function (req, res) {
                 message: "If an account with that email address exists, a password reset link has been sent. Please check your email and follow the instructions to reset your password."
             });
 
+        }
+        else{
+
+            console.log("[*] Initiating Password Reset Process");
+
+            // Yet to add 
+            
+              return res.status(200).json({
+                status: true,
+                message: "If an account with that email address exists, a password reset link has been sent. Please check your email and follow the instructions to reset your password."
+            });
         }
     }
     catch (error) {
