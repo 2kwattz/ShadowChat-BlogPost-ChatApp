@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt"); // Bcrypt Hashing
 const jwt = require("jsonwebtoken"); // JWT Authentication
 const disposableDomains = require("disposable-email-domains"); // Real Time List of Disposable Emails
-
+const crypto = require("crypto"); // For generating secure tokens
 const redisClient = require("../redis/redisClient");
 
 // Templates
@@ -1323,7 +1323,7 @@ router.post("/updateEmail", authMiddleware, async function (req, res) {
         // Validating Email Duplication
 
         const duplicationQuery = `SELECT userId from Users WHERE email = ? LIMIT 1`;
-        const [duplicationResults] = await pool.query(duplicationQuery, [emailAddress]);
+        const [duplicationResults] = await pool.execute(duplicationQuery, [emailAddress]);
         const userIdFetchedFromDb = duplicationResults[0]?.userId;
 
         if (duplicationResults.length > 0) {
@@ -1663,11 +1663,11 @@ router.post("/forgotPassword", async function (req, res) {
         }
 
         // Email Address to confirm User Authenticity
-        const confirmAccountQuery = `SELECT * FROM Users where EmailAddress = ?`;
+        const confirmAccountQuery = `SELECT userId FROM users WHERE EmailAddress = ?`;
 
-        const [result] = await pool.execute(confirmAccountQuery, [emailAddress]);
+        const [user] = await pool.execute(confirmAccountQuery, [emailAddress]);
 
-        if (result.length === 0) {
+        if (user.length === 0) {
             console.log("[*] No Email Address found for Password Reset");
 
             return res.status(200).json({
@@ -1676,13 +1676,52 @@ router.post("/forgotPassword", async function (req, res) {
             });
 
         }
-        else{
+        else {
 
+            // Primary Index of the Queried user
+            const userId = user[0].userId;
+
+            console.log("[*] UserId of the queried user ", userId);
             console.log("[*] Initiating Password Reset Process");
 
+            // Generated Reset Password Token
+            const resetToken = crypto.randomBytes(32).toString("hex");
+
+            console.log("[*] Raw Reset Token has been generated ", resetToken);
+
+            // Hashing the Reset Password Token using SHA256
+            const hashedResetToken = crypto
+                .createHash("sha256")
+                .update(resetToken)
+                .digest("hex");
+
+            console.log("[*] Hashed Reset Token has been generated ", hashedResetToken);
+
+            // Reset Password Token Expiry
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 Minutes expiry time
+
+            // Adding Reset Password Token and Expiry Time in Database
+            const resetPasswordQuery = `UPDATE users SET resetPasswordToken = ?, resetPasswordExpiryTime = ? WHERE emailAddress = ?`;
+
+            // Querying Database
+            const [passwordResetRows] = await pool.execute(resetPasswordQuery, [hashedResetToken, expiresAt, emailAddress]);
+
+            // Verifying Password Reset Rows Updation
+            if (passwordResetRows.affectedRows !== 1) {
+
+                console.error("[*] Failed to update password reset token in database.");
+
+                return res.status(500).json({
+                    status: false,
+                    message: "Internal Server Error"
+                });
+            }
+
+            // URL Generation for Password Reset
+
             // Yet to add 
-            
-              return res.status(200).json({
+
+            return res.status(200).json({
                 status: true,
                 message: "If an account with that email address exists, a password reset link has been sent. Please check your email and follow the instructions to reset your password."
             });
