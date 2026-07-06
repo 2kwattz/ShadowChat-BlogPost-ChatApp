@@ -1,0 +1,37 @@
+.card{
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-secondary-dark);
+    border-radius: 18px;
+    width: 70%;
+    flex-direction: row;
+}
+.loginRight{
+    color: var(--text-white-1);
+}
+
+.loginRightInner{
+    display: flex;
+}
+
+.loginContainer{
+    min-height: 100vh;
+    padding: 40px;
+}
+
+.loginForm{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.loginLeft{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap:20px;
+}

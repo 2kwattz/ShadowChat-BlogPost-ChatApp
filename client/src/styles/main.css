@@ -85,6 +85,43 @@ body {
 }
 
 
+/* Radial Blur Background */
+
+
+.radialblurcontainer {
+    /* background-color: var(--bg-dark-primary); */
+     position: relative;
+    /* background: #070b15; */
+    overflow-x: hidden;
+}
+
+
+.radialblurcontainer::before{
+    content: "";
+    position: fixed;
+
+    width: 900px;
+    height: 900px;
+
+    left: -250px;
+    top: -150px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(circle,
+            rgba(0,180,255,.18) 0%,
+            rgba(0,180,255,.10) 25%,
+            rgba(0,180,255,.04) 50%,
+            transparent 75%);
+
+    filter: blur(120px);
+
+    pointer-events: none;
+    z-index: -1;
+}
+
+
 /* Headings */
 
 .boldTitle {
