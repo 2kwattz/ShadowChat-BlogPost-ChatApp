@@ -5,10 +5,11 @@ const jwt = require("jsonwebtoken"); // JWT Authentication
 const disposableDomains = require("disposable-email-domains"); // Real Time List of Disposable Emails
 const crypto = require("crypto"); // For generating secure tokens
 const redisClient = require("../redis/redisClient");
-
+const { BASE_URL } = require("../utils/globals")
 // Templates
 const welcomeTemplate = require("../templates/welcome");
 const confirmPasswordResetTemplate = require("../templates/confirmResetPassword");
+const forgotPasswordTemplate = require("../templates/ForgotPassword");
 
 
 // Utility Functions
@@ -1663,7 +1664,7 @@ router.post("/forgotPassword", async function (req, res) {
         }
 
         // Email Address to confirm User Authenticity
-        const confirmAccountQuery = `SELECT userId FROM users WHERE EmailAddress = ?`;
+        const confirmAccountQuery = `SELECT userId,firstName,lastName FROM users WHERE EmailAddress = ?`;
 
         const [user] = await pool.execute(confirmAccountQuery, [emailAddress]);
 
@@ -1678,8 +1679,12 @@ router.post("/forgotPassword", async function (req, res) {
         }
         else {
 
-            // Primary Index of the Queried user
-            const userId = user[0].userId;
+            const userId = user[0].userId; // Primary Index of the Queried user
+            const firstName = user[0].firstName // First Name of the Queried user
+            const lastName = user[0].lastName // Last Name of the Queried user
+            const userFullName = `${firstName} ${lastName}`; // Full Name of the Queried user
+            const userIpAddress = req?.ip; // IP Address of the originating request
+
 
             console.log("[*] UserId of the queried user ", userId);
             console.log("[*] Initiating Password Reset Process");
@@ -1719,6 +1724,28 @@ router.post("/forgotPassword", async function (req, res) {
 
             // URL Generation for Password Reset
 
+
+            const passwordResetUrl = `${BASE_URL}resetPassword?token=${resetToken}`;
+
+            try {
+
+                await sendEmail(
+                    emailAddress,
+                    "Somebody requested for your Shadow Chat Password",
+                    forgotPasswordResetTemplate(userFullName, passwordResetUrl, userIpAddress)
+                );
+            }
+            catch (error) {
+                console.log("[*] Error in sending Update Password Confirmation Email");
+
+                return res.status(500).json({
+                    status: false,
+                    error: "Internal Server Error"
+                });
+            }
+
+
+
             // Yet to add 
 
             return res.status(200).json({
@@ -1735,6 +1762,26 @@ router.post("/forgotPassword", async function (req, res) {
             status: false,
             error: "Internal Server Error"
         });
+    }
+
+});
+
+// Reset Forgotten Password
+
+router.get("/resetPassword", async function (req, res) {
+
+    try {
+        console.log("[*] Reset Password API Hit")
+    }
+    catch (error) {
+
+        console.error("[*] Error in POST/ Reset Password ", error?.message || error);
+
+        return res.status(500).json({
+            status: false,
+            error: "Internal Server Error"
+        });
+
     }
 
 })
