@@ -19,10 +19,10 @@ const CreateCommunity = () => {
                 </div>
 
                 <div>
-                    <h1 style={{color:"white"}}>
-                    Create your Community
+                    <h1 style={{ color: "white" }}>
+                        Create your Community
                     </h1>
-                    </div>
+                </div>
             </section>
             <section className='two-col-container'>
                 <div className='two-col-left'>

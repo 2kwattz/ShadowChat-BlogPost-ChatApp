@@ -1424,11 +1424,11 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
 
         const searchUsernameQuery = `SELECT userId FROM users WHERE username = ? LIMIT 1`
 
-        const [usernameResult] = await pool.execute(searchUsernameQuery,[username]);
+        const [usernameResult] = await pool.execute(searchUsernameQuery, [username]);
 
         const takenUsernameUserId = usernameResult[0].userId;
 
-        if(takenUsernameUserId == userId){
+        if (takenUsernameUserId == userId) {
 
             return res.status(400).json({
                 status: false,
@@ -1436,7 +1436,7 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
             })
         }
 
-        if(usernameResult.length !== 0){
+        if (usernameResult.length !== 0) {
             return res.status(409).json({
                 status: false,
                 message: "Username already exists. Please choose a different username "
@@ -1446,16 +1446,16 @@ router.post("/updateUsername", authMiddleware, async function (req, res) {
         // Update username query if all validations cleared
         const updateQuery = `UPDATE users SET username = ? where userId = ?`;
 
-        const [updateUsername] = await pool.execute(updateQuery,[username,userId]);
+        const [updateUsername] = await pool.execute(updateQuery, [username, userId]);
 
-        if(updateUsername.changedRows !== 0){
+        if (updateUsername.changedRows !== 0) {
             return res.status(200).json({
-                status:true,
+                status: true,
                 message: "Username updated successfully"
 
             })
         }
-        else{
+        else {
             return res.status(500).json({
                 status: false,
                 message: "Cannot update username. Please try again later"
@@ -1575,18 +1575,18 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
         // Invalidating cache temporarily
         await redisClient.del(`user:${req.user.id}`);
 
-           try {
+        try {
 
             await sendEmail(
                 dbUserEmail,
                 "Your Password has been changed",
-                confirmPasswordResetTemplate(dbUserFirstName,userIpAddress)
+                confirmPasswordResetTemplate(dbUserFirstName, userIpAddress)
             );
         }
         catch (error) {
             console.log("[*] Error in sending Update Password Confirmation Email")
         }
-        
+
 
         return res.status(200).json({
             status: true,
@@ -1608,6 +1608,85 @@ router.post("/updatePassword", authMiddleware, async function (req, res) {
         });
 
     }
+});
+
+// Reset Password
+
+router.post("/resetPassword", async function (req, res) {
+
+    try {
+        console.log("[*] User hit POST/ Reset Password");
+
+        const emailAddress = req?.body?.emailAddress;
+
+        console.log(`[*] Initiating Password Reset for ${emailAddress} `)
+
+        // Validating Email Existence
+        if (!emailAddress) {
+
+            return res.status(400).json({
+                status: false,
+                error: "Please enter a valid email address"
+            });
+        }
+
+        // Validating Email Structure
+        if (!emailRegex.test(emailAddress)) {
+            return res.status(400).json({
+                status: false,
+                message: "Invalid Email Address format"
+            })
+        }
+
+        // Validating Email Min length
+        if (emailAddress?.length < 5) {
+            return res.status(400).json({
+                status: false,
+                message: "Email Address should be at least 5 characters"
+            })
+        }
+
+        // Validating Email Max Length
+        if (emailAddress?.length > 50) {
+            return res.status(400).json({
+                status: false,
+                message: "Email Address cannot exceed 50 characters"
+            });
+        }
+
+        // Validating Email Authenticity
+        if (blockedEmailDomains?.has(emailDomain) || disposableDomains?.includes(emailDomain)) {
+            return res.status(400).json({
+                status: false,
+                message: "Temporary Email Addresses are not allowed"
+            });
+        }
+
+        // Email Address to confirm User Authenticity
+        const confirmAccountQuery = `SELECT * FROM Users where EmailAddress = ?`;
+
+        const [result] = await pool.execute(confirmAccountQuery, [emailAddress]);
+
+        if (result.length === 0) {
+            console.log("[*] No Email Address found for Password Reset");
+
+            return res.status(200).json({
+                status: true,
+                message: "If an account with that email address exists, a password reset link has been sent. Please check your email and follow the instructions to reset your password."
+            });
+
+        }
+    }
+    catch (error) {
+
+        console.error("[*] Error in POST/ Reset Password ", error?.message || error);
+
+        return res.status(500).json({
+            status: false,
+            error: "Internal Server Error"
+        });
+    }
+
 })
 
 // Delete Account
@@ -1621,7 +1700,7 @@ router.post("/deleteAccount", authMiddleware, async function (req, res) {
     }
     catch (error) {
 
-        console.log("[*] Error in Delete Account Route ",error?.message || error)
+        console.log("[*] Error in Delete Account Route ", error?.message || error)
 
         res.status(500).json({
             status: false,
