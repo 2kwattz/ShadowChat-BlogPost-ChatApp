@@ -14,8 +14,8 @@ function Dashboard() {
 
   return (
     <div>
-      <h1>Dashboard</h1>
-      <p>Welcome {user?.firstName} {user?.lastName}</p>
+      <h1 style={{color:"white"}}>Dashboard</h1>
+      <p style={{color:"white"}}>Welcome {user?.firstName} {user?.lastName}</p>
     </div>
   );
 }
