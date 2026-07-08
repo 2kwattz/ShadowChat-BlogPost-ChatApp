@@ -8,7 +8,10 @@ async function geoLocationTracker(ipAddress) {
         // const publicIp = await fetchPublicIp.json();
         // console.log(publicIp);
 
-        const locationFetchUrl = `https://ipinfo.io/${ipAddress}/json`
+        // const locationFetchUrl = `https://ipinfo.io/${ipAddress}/json`
+        const locationFetchUrl = `http://ip-api.com/json/${ipAddress}`;
+
+        //  const locationFetchUrl = `https://ipinfo.io/lite/${ipAddress}?token=${process.env.IPINFO_API_KEY}`
         console.log("[*] Fetching User Location from IP Address ");
         const response = await axios.get(locationFetchUrl);
 

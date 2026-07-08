@@ -174,6 +174,7 @@ async function startServer() {
         app.use("/room", chatroomRouter); // Chatroom routes
         app.use("/community", communityRouter); // Community Router
         app.use("/ai", aiRouter); // AI Models Router
+        app.use("/admin", adminRouter) // Admin Router
         app.set("trust proxy", false);
 
         // XSS Sanitization Eg
