@@ -8,6 +8,8 @@ import Navbar from '../../components/Navbar/navbar';
 
 const CreateCommunity = () => {
 
+    const [imageSelected,setImageSelected] = useState(false)
+
     return (
         <React.Fragment>
 
@@ -23,10 +25,45 @@ const CreateCommunity = () => {
                         Create your Community
                     </h1>
                 </div>
+
+                <h2>
+                    Build a home base for your people. Add a cover, set the ground rules, and give it an identity worth joining.
+                </h2>
             </section>
             <section className='two-col-container'>
                 <div className='two-col-left'>
-                    test
+                    
+                    {/* Create Community Card */}
+
+                    <div className="createCommunityCard">
+                        <h3 style={{color:"white"}}>1. Branding </h3>
+                        <p style={{color:"white"}} >Cover Image (Optional)</p>
+
+                         <>
+      <input
+        type="file"
+        id="cover-upload"
+        accept="image/png,image/jpeg"
+        onChange={()=>{console.log("Test Handle Image")}}
+        hidden
+      />
+
+      <label htmlFor="cover-upload">
+        {imageSelected ? (
+          <img src={sampleCover} alt="Cover" height="70px" width="70px" />
+        ) : (
+          <div >
+            <div>🖼️</div>
+
+            <h3 style={{color:"white"}}>Click to upload a cover image</h3>
+
+            <p style={{color:"white"}}>Recommended 1200×300px, JPG or PNG</p>
+          </div>
+        )}
+      </label>
+    </>
+
+                    </div>
                 </div>
 
                 <div className='two-col-right'>
