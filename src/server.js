@@ -38,6 +38,7 @@ const authRouter = require("../routes/authRouter"); // Auth routes
 const chatroomRouter = require("../routes/chatroomRoutes"); // Chatroom Routes
 const communityRouter = require("../routes/communityRouter") // Communities Router
 const aiRouter = require("../routes/aiRoutes") // AI LLM Routes
+const adminRouter = require("../routes/adminRoutes") // Admin Routes
 
 // Enviornment Variables
 require("dotenv").config(); // DOT ENV Declaration
