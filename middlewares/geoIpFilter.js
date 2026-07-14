@@ -18,7 +18,7 @@ const geoIpFilter = async (req,res,next) => {
 
              return res.status(401).json({
             status:false,
-            message:"Service not accessable in your location"
+            message:"Service not accessable in your location. Dont try VPN"
         })
 
         }
